@@ -2,6 +2,7 @@ import collections
 import numpy as np
 from randomwalk import RandomWalk
 import matplotlib.pyplot as plt
+import random
 
 def constant_factory(n):
     probability_list = np.ones(n)
@@ -31,46 +32,96 @@ class Agent:
                 if is_done:
                     while len(n_queue) != 0:
                         state_updated, _, _ = n_queue.popleft()
-                        gamma_temp = 1
-                        G = 0
+                        gamma_temp = 1.0
+                        g_value = 0.0
                         for iter_n in n_queue:
-                            G += gamma_temp * iter_n[1]
+                            g_value += gamma_temp * iter_n[1]
                             gamma_temp *= gamma
-                        self.value_of_state[state_updated] += (alpha * (G - self.value_of_state[state_updated]))
+                        self.value_of_state[state_updated] += (alpha * (g_value - self.value_of_state[state_updated]))
                     break
                 else:
                     if len(n_queue) == self.n + 1:
                         state_updated, _, _ = n_queue.popleft()
-                        gamma_temp = 1
-                        G = 0
+                        gamma_temp = 1.0
+                        g_value = 0.0
                         for iter_n in n_queue:
-                            G += gamma_temp * iter_n[1]
+                            g_value += gamma_temp * iter_n[1]
                             gamma_temp *= gamma
                         action_next = self.select_action(new_state)
                         new_state, reward, is_done, _ = env.step(action_next)
-                        G += (reward*gamma_temp+self.value_of_state[new_state])
-                        self.value_of_state[state_updated] += (alpha * (G - self.value_of_state[state_updated]))
+                        g_value += (reward*gamma_temp + self.value_of_state[new_state])
+                        self.value_of_state[state_updated] += (alpha * (g_value - self.value_of_state[state_updated]))
+
+    def estimating_with_generated_randomwalk(self,  random_walk_trace_list, alpha=0.9, gamma=0.9):
+        for random_walk in random_walk_trace_list:
+            n_queue = collections.deque()
+            new_state, reward, is_done, _ = random_walk[0]
+            random_walk_step = 0
+            while True:
+                n_queue.append([new_state, reward, is_done])
+                if is_done:
+                    while len(n_queue) != 0:
+                        state_updated, _, _ = n_queue.popleft()
+                        gamma_temp = 1.0
+                        g_value = 0.0
+                        for iter_n in n_queue:
+                            g_value += gamma_temp * iter_n[1]
+                            gamma_temp *= gamma
+                        self.value_of_state[state_updated] += (alpha * (g_value - self.value_of_state[state_updated]))
+                    break
+                else:
+                    if len(n_queue) == self.n + 1:
+                        state_updated, _, _ = n_queue.popleft()
+                        gamma_temp = 1.0
+                        g_value = 0.0
+                        for iter_n in n_queue:
+                            g_value += gamma_temp * iter_n[1]
+                            gamma_temp *= gamma
+                        random_walk_step += 1
+                        new_state, reward, is_done, _ = random_walk[random_walk_step]
+                        g_value += (reward*gamma_temp + self.value_of_state[new_state])
+                        self.value_of_state[state_updated] += (alpha * (g_value - self.value_of_state[state_updated]))
+
+
+def generate_random_walk_trace_list(env, agent):
+    current_stat = env.reset()
+    action = agent.select_action(current_stat)
+    walk_trace = [env.step(action)]
+    new_state, reward, is_done, _ = walk_trace[0]
+    while not is_done:
+        action = agent.select_action(new_state)
+        walk_trace.append(env.step(action))
+        new_state, reward, is_done, _ = walk_trace[-1]
+    return walk_trace
 
 
 if __name__ == '__main__':
     env = RandomWalk(19)
-    agent = Agent(2)
-
     ground_truth = []
-    rms_array = []
-    for i in range(19):
-        ground_truth.append(-1+i/19)
-    alpha_array = [i/100. for i in range(1, 100)]
-    for alpha_i in alpha_array:
-        value_list_of_state = np.array([0.0 for _ in range(19)])
+    for i in range(0, 19):
+        ground_truth.append(-1+i/9)
+    alpha_array = [i/100. for i in range(0, 100)]
+    plt.figure(0)
+    agents = [1,2,4,8,16,32,64]
+    for agent_n in agents:
+        rms_array = np.zeros(100)
         for _ in range(100):
-            agent.estimating(env, 10, alpha=alpha_i)
-            for i in range(env.state_space.n):
-                value_list_of_state[i] += (agent.value_of_state[i])
-        value_list_of_state = value_list_of_state / 100
-
-        rms = np.sum((np.array(value_list_of_state[1:-1]) - np.array(ground_truth[1:-1]))**2)/17
-        rms_array.append(rms)
-    plt.plot(alpha_array, np.array(rms_array))
+            walk_trace_list = []
+            for i in range(10):
+                agent = Agent(8)
+                walk_trace_list.append(generate_random_walk_trace_list(env, agent))
+            alpha_num = 0
+            for alpha_i in alpha_array:
+                value_list_of_state = np.zeros(19)
+                agent = Agent(agent_n)
+                agent.estimating_with_generated_randomwalk(walk_trace_list, alpha_i, gamma=1)
+                for i in range(1, env.state_space.n-1):
+                    value_list_of_state[i] = (agent.value_of_state[i])
+                rms_array[alpha_num] += np.sqrt(np.sum((np.array(value_list_of_state[1:-1]) -
+                                                        np.array(ground_truth[1:-1]))**2)/17)
+                alpha_num += 1
+        rms_array = rms_array / 100
+        plt.plot(np.array(alpha_array), rms_array, color=(random.random(), random.random(), random.random()), label='n='+str(agent_n))
+    plt.legend()
     plt.show()
 
