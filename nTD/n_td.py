@@ -51,6 +51,9 @@ class Agent:
                         new_state, reward, is_done, _ = env.step(action_next)
                         g_value += (reward*gamma_temp + self.value_of_state[new_state])
                         self.value_of_state[state_updated] += (alpha * (g_value - self.value_of_state[state_updated]))
+                    else:
+                        action_next = self.select_action(new_state)
+                        new_state, reward, is_done, _ = env.step(action_next)
 
     def estimating_with_generated_randomwalk(self,  random_walk_trace_list, alpha=0.9, gamma=0.9):
         for random_walk in random_walk_trace_list:
@@ -102,7 +105,7 @@ if __name__ == '__main__':
         ground_truth.append(-1+i/9)
     alpha_array = [i/100. for i in range(0, 100)]
     plt.figure(0)
-    agents = [1,2,4,8,16,32,64]
+    agents = [1,2,4,8,16,32,64,128,256,512]
     for agent_n in agents:
         rms_array = np.zeros(100)
         for _ in range(100):
