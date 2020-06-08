@@ -24,11 +24,10 @@ class GridWorld:
         self.current_state = self.state_space[0]
         return self.current_state
 
-
     def step(self, action):
         height = width = self.grid_size
         # punish_value = -10
-        punish_value = -10
+        punish_value = 0
         if action == 0:
             # go left
             new_position = self.current_state % width - 1
