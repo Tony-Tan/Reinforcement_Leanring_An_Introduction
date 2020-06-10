@@ -1,6 +1,6 @@
 import collections
 import numpy as np
-from randomwalk import RandomWalk
+from nTD.randomwalk import RandomWalk
 import matplotlib.pyplot as plt
 import random
 

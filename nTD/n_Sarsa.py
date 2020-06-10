@@ -1,6 +1,8 @@
 import collections
-from Environment.gride_world import GridWorld
+from nTD.randomwalk import RandomWalk
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 def constant_factory(n):
     probability_list = np.ones(n)
@@ -11,7 +13,7 @@ class Agent:
     def __init__(self, environment_, n):
         self.env = environment_
         self.n = n
-        self.policies = collections.defaultdict(constant_factory(4))
+        self.policies = collections.defaultdict(constant_factory(self.env.action_space.n))
         self.value_of_state_action = collections.defaultdict(lambda: 0)
 
     def select_action(self, state):
@@ -63,25 +65,35 @@ class Agent:
                         new_state, reward, is_done, _ = self.env.step(action)
                         n_queue.append([current_stat, action, reward])
         # update policy
-        for state_iter in range(self.env.state_space.n):
-            value_of_action_list = []
-            for action_iter in range(self.env.action_space.n):
-                value_of_action_list.append(self.value_of_state_action[(state_iter, action_iter)])
-            value_of_action_list = np.array(value_of_action_list)
-            optimal_action = np.random.choice(
-                np.flatnonzero(value_of_action_list == value_of_action_list.max()))
-            for action_iter in range(self.env.action_space.n):
-                if action_iter == optimal_action:
-                    self.policies[state_iter][
-                        action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
-                else:
-                    self.policies[state_iter][action_iter] = epsilon / self.env.action_space.n
+        # for state_iter in range(self.env.state_space.n):
+        #     value_of_action_list = []
+        #     for action_iter in range(self.env.action_space.n):
+        #         value_of_action_list.append(self.value_of_state_action[(state_iter, action_iter)])
+        #     value_of_action_list = np.array(value_of_action_list)
+        #     optimal_action = np.random.choice(
+        #         np.flatnonzero(value_of_action_list == value_of_action_list.max()))
+        #     for action_iter in range(self.env.action_space.n):
+        #         if action_iter == optimal_action:
+        #             self.policies[state_iter][
+        #                 action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
+        #         else:
+        #             self.policies[state_iter][action_iter] = epsilon / self.env.action_space.n
 
 
 if __name__ == '__main__':
-    environment = GridWorld(5)
-    agent = Agent(environment, 4)
-    agent.estimating(100000)
-    environment.plot_grid_world(agent.policies)
-
+    env = RandomWalk(19)
+    ground_truth = []
+    for i in range(0, 19):
+        ground_truth.append(-1 + i / 9)
+    agent = Agent(env,1)
+    agent.estimating(10000)
+    estimating_value = np.zeros(19)
+    for i in range(env.state_space.n):
+        for j in range(env.action_space.n):
+            estimating_value[i] = agent.value_of_state_action[(i,j)]
+    print(estimating_value)
+    plt.figure(0)
+    plt.plot(estimating_value[1:-1])
+    plt.plot(ground_truth[1:-1])
+    plt.show()
 

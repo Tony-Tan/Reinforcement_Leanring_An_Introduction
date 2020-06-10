@@ -6,6 +6,7 @@ class Space:
     def __getitem__(self, index):
         return self.list[index]
 
+
 class RandomWalk:
     def __init__(self, n):
         self.start_state = int(n/2)
