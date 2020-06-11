@@ -22,7 +22,7 @@ class Agent:
         return action[0]
 
     def estimating(self, iteration_times, alpha=0.3, gamma=0.9, epsilon=0.1):
-        for _ in range(iteration_times):
+        for iteration_time in range(iteration_times):
             current_stat = self.env.reset()
             action = self.select_action(current_stat)
             new_state, reward, is_done, _ = self.env.step(action)
