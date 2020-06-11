@@ -14,14 +14,14 @@ class Agent:
         self.env = environment_
         self.n = n
         self.policies = collections.defaultdict(constant_factory(self.env.action_space.n))
-        self.value_of_state_action = collections.defaultdict(lambda: 0.5)
+        self.value_of_state_action = collections.defaultdict(lambda: 0)
 
     def select_action(self, state):
         probability_distribution = self.policies[state]
         action = np.random.choice(self.env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def estimating(self, iteration_times, alpha=0.9, gamma=0.9, epsilon=0.1):
+    def estimating(self, iteration_times, alpha=0.3, gamma=0.9, epsilon=0.1):
         for _ in range(iteration_times):
             current_stat = self.env.reset()
             action = self.select_action(current_stat)
@@ -41,6 +41,20 @@ class Agent:
                             gamma_temp *= gamma
                         self.value_of_state_action[(state_updated, action_updated)] += \
                             (alpha * (g_value - self.value_of_state_action[(state_updated, action_updated)]))
+                        # update policy
+                        # value_of_action_list = []
+                        # for action_iter in range(self.env.action_space.n):
+                        #     value_of_action_list.append(self.value_of_state_action[(state_updated, action_iter)])
+                        # value_of_action_list = np.array(value_of_action_list)
+                        # optimal_action = np.random.choice(np.flatnonzero(value_of_action_list ==
+                        #                                                  value_of_action_list.max()))
+                        # for action_iter in range(self.env.action_space.n):
+                        #     if action_iter == optimal_action:
+                        #         self.policies[state_updated][action_iter] = \
+                        #             1 - epsilon + epsilon / self.env.action_space.n
+                        #     else:
+                        #         self.policies[state_updated][action_iter] = \
+                        #             epsilon / self.env.action_space.n
                     break
                 else:
                     if len(n_queue) == self.n + 1:
@@ -62,26 +76,39 @@ class Agent:
                         g_value += expected_g_state_value*gamma_temp
                         self.value_of_state_action[(state_updated, action_updated)] += \
                             (alpha * (g_value - self.value_of_state_action[(state_updated, action_updated)]))
-
+                        # update policy
+                        # value_of_action_list = []
+                        # for action_iter in range(self.env.action_space.n):
+                        #     value_of_action_list.append(self.value_of_state_action[(state_updated, action_iter)])
+                        # value_of_action_list = np.array(value_of_action_list)
+                        # optimal_action = np.random.choice(np.flatnonzero(value_of_action_list ==
+                        #                                                  value_of_action_list.max()))
+                        # for action_iter in range(self.env.action_space.n):
+                        #     if action_iter == optimal_action:
+                        #         self.policies[state_updated][action_iter] = \
+                        #             1 - epsilon + epsilon / self.env.action_space.n
+                        #     else:
+                        #         self.policies[state_updated][action_iter] = \
+                        #             epsilon / self.env.action_space.n
                     else:
                         current_stat = new_state
                         action = self.select_action(current_stat)
                         new_state, reward, is_done, _ = self.env.step(action)
                         n_queue.append([current_stat, action, reward])
         # update policy
-        # for state_iter in range(self.env.state_space.n):
-        #     value_of_action_list = []
-        #     for action_iter in range(self.env.action_space.n):
-        #         value_of_action_list.append(self.value_of_state_action[(state_iter, action_iter)])
-        #     value_of_action_list = np.array(value_of_action_list)
-        #     optimal_action = np.random.choice(
-        #         np.flatnonzero(value_of_action_list == value_of_action_list.max()))
-        #     for action_iter in range(self.env.action_space.n):
-        #         if action_iter == optimal_action:
-        #             self.policies[state_iter][
-        #                 action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
-        #         else:
-        #             self.policies[state_iter][action_iter] = epsilon / self.env.action_space.n
+        for state_iter in range(self.env.state_space.n):
+            value_of_action_list = []
+            for action_iter in range(self.env.action_space.n):
+                value_of_action_list.append(self.value_of_state_action[(state_iter, action_iter)])
+            value_of_action_list = np.array(value_of_action_list)
+            optimal_action = np.random.choice(
+                np.flatnonzero(value_of_action_list == value_of_action_list.max()))
+            for action_iter in range(self.env.action_space.n):
+                if action_iter == optimal_action:
+                    self.policies[state_iter][
+                        action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
+                else:
+                    self.policies[state_iter][action_iter] = epsilon / self.env.action_space.n
 
 
 if __name__ == '__main__':
@@ -89,7 +116,7 @@ if __name__ == '__main__':
     ground_truth = []
     for i in range(0, 19):
         ground_truth.append(-1 + i / 9)
-    agent = Agent(env, 0)
+    agent = Agent(env, 4)
     agent.estimating(10000)
     estimating_value = np.zeros(19)
     for i in range(env.state_space.n):
