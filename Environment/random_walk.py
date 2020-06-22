@@ -12,7 +12,7 @@ class Space:
 
 class RandomWalk:
     def __init__(self):
-        self.state_space = Space([-3, -2, -1, 0, 1, 2, 3])
+        self.state_space = Space([0, 1, 2, 3, 4, 5, 6])
         self.action_space = Space([-1, +1])
         self.current_state = 3
 
@@ -20,11 +20,14 @@ class RandomWalk:
         self.current_state = 3
         return 3
 
-    def step(self, action):
-        state = self.current_state + self.action_space[action]
-        if self.state_space[state] == -3:
+    def step(self, action, state=None):
+        if state is None:
+            state = self.current_state + self.action_space[action]
+        else:
+            state += self.action_space[action]
+        if state == 0:
             return None, 0, True, {}
-        elif self.state_space[state] == 3:
+        elif state == 6:
             return None, 1, True, {}
         else:
             self.current_state = state

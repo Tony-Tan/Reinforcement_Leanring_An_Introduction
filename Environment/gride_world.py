@@ -12,7 +12,7 @@ class Space:
 
 
 class GridWorld:
-    def __init__(self, n=4):
+    def __init__(self, n=4, block=[]):
         self.grid_size = n
         self.state_space = Space([i for i in range(n*n)])
         self.action_space = Space([0, 1, 2, 3])
