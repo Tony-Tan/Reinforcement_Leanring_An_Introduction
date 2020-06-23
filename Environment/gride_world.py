@@ -18,6 +18,7 @@ class GridWorld:
         self.action_space = Space([0, 1, 2, 3])
         self.current_state = -1
         self.termination = [n*n - 1]
+        self.block = block
 
     def reset(self):
         # self.current_state = self.state_space[int(self.grid_size * self.grid_size / 2)]
@@ -26,13 +27,15 @@ class GridWorld:
 
     def step(self, action):
         height = width = self.grid_size
-        # punish_value = -10
-        punish_value = 0
+        punish_value = -10
+        # punish_value = 0
         if action == 0:
             # go left
             new_position = self.current_state % width - 1
             if new_position < 0:
-                return None, punish_value, True, {}
+                return None, 0, False, True
+            elif new_position in self.block:
+                return None, 0, False, True
             else:
                 self.current_state -= 1
                 if self.current_state in self.termination:
@@ -44,7 +47,9 @@ class GridWorld:
             # go upper
             new_position = int(self.current_state / width) - 1
             if new_position < 0:
-                return None, punish_value, True, {}
+                return None, 0, False, True
+            elif new_position in self.block:
+                return None, 0, False, True
             else:
                 self.current_state -= width
                 if self.current_state in self.termination:
@@ -56,7 +61,9 @@ class GridWorld:
             # go right
             new_position = self.current_state % width + 1
             if new_position >= width:
-                return None, punish_value, True, {}
+                return None, 0, False, True
+            elif new_position in self.block:
+                return None, 0, False, True
             else:
                 self.current_state += 1
                 if self.current_state in self.termination:
@@ -68,7 +75,9 @@ class GridWorld:
             # go down
             new_position = int(self.current_state / width) + 1
             if new_position >= height:
-                return None, punish_value, True, {}
+                return None, 0, False, True
+            elif new_position in self.block:
+                return None, 0, False, True
             else:
                 self.current_state += width
                 if self.current_state in self.termination:
@@ -84,6 +93,10 @@ class GridWorld:
             for j in range(n):
                 if i*n+j in self.termination:
                     plt.text((j + 1.05) / (n + 1), 1 - (i + 0.95) / (n + 1), 'End',
+                             size='medium')
+                    continue
+                if i*n+j in self.block:
+                    plt.text((j + 1.05) / (n + 1), 1 - (i + 0.95) / (n + 1), 'B',
                              size='medium')
                     continue
                 for action_iter in range(size_of_action_space):
