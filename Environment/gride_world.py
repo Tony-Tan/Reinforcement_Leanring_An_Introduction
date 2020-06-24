@@ -34,7 +34,7 @@ class GridWorld:
             new_position = self.current_state % width - 1
             if new_position < 0:
                 return None, 0, False, True
-            elif new_position in self.block:
+            elif self.current_state - 1 in self.block:
                 return None, 0, False, True
             else:
                 self.current_state -= 1
@@ -48,7 +48,7 @@ class GridWorld:
             new_position = int(self.current_state / width) - 1
             if new_position < 0:
                 return None, 0, False, True
-            elif new_position in self.block:
+            elif self.current_state - width in self.block:
                 return None, 0, False, True
             else:
                 self.current_state -= width
@@ -62,7 +62,7 @@ class GridWorld:
             new_position = self.current_state % width + 1
             if new_position >= width:
                 return None, 0, False, True
-            elif new_position in self.block:
+            elif self.current_state + 1 in self.block:
                 return None, 0, False, True
             else:
                 self.current_state += 1
@@ -76,7 +76,7 @@ class GridWorld:
             new_position = int(self.current_state / width) + 1
             if new_position >= height:
                 return None, 0, False, True
-            elif new_position in self.block:
+            elif self.current_state + width in self.block:
                 return None, 0, False, True
             else:
                 self.current_state += width

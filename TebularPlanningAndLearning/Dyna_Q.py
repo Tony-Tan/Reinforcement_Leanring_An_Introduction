@@ -88,9 +88,8 @@ class Agent:
                         self.policies[state][action_iter] = epsilon/possible_action_num
 
 
-
 if __name__ == '__main__':
     env = GridWorld(8, [5, 13, 21, 10, 18, 26, 34, 38, 46])
     agent = Agent(env)
-    agent.dyna_q(1, alpha=0.1, gamma=0.6)
+    agent.dyna_q(10000, alpha=0.1, gamma=0.6)
     env.plot_grid_world(agent.policies)
