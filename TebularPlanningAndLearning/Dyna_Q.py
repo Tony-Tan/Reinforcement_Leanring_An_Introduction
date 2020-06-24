@@ -3,6 +3,7 @@ import numpy as np
 import collections
 import matplotlib.pyplot as plt
 import random
+import numpy as np
 
 def constant_factory(n):
     probability_list = np.ones(n)
@@ -27,8 +28,10 @@ class Agent:
         return action[0]
 
     def dyna_q(self, number_of_episodes, alpha=0.1, gamma=1, epsilon=0.4):
+        steps_used_in_episode = []
         for _ in range(number_of_episodes):
             state = self.env.reset()
+            step_nums = 0
             while True:
                 action = self.select_action(state)
                 new_state, reward, is_done, is_block = self.env.step(action)
@@ -65,7 +68,8 @@ class Agent:
                 if is_done:
                     break
                 state = new_state
-
+                step_nums += 1
+            steps_used_in_episode.append(step_nums)
             # control epsilon-greedy
             for state in range(self.env.state_space.n):
                 value_of_action_list = []
@@ -86,10 +90,21 @@ class Agent:
                         self.policies[state][action_iter] = 1 - epsilon + epsilon/possible_action_num
                     else:
                         self.policies[state][action_iter] = epsilon/possible_action_num
-
+        return steps_used_in_episode
 
 if __name__ == '__main__':
     env = GridWorld(8, [5, 13, 21, 10, 18, 26, 34, 38, 46])
-    agent = Agent(env)
-    agent.dyna_q(10000, alpha=0.1, gamma=0.6)
-    env.plot_grid_world(agent.policies)
+    steps_matrix = np.zeros((3,50))
+    agent_n = [0,5,50]
+    repeat_n_times = 30
+    for j in range(repeat_n_times):
+        for i in range(3):
+            agent = Agent(env, n=agent_n[i])
+            steps = agent.dyna_q(50, alpha=0.1, gamma=0.6)
+            steps_matrix[i] += np.array(steps)
+    steps_matrix /= 30.
+    for steps_array in steps_matrix:
+        color = 0.1
+        plt.plot(steps_array)
+        color *= 3
+    plt.show()
