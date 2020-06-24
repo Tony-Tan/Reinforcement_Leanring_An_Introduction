@@ -27,9 +27,9 @@ class Agent:
         action = np.random.choice(env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def dyna_q(self, number_of_episodes, alpha=0.1, gamma=1, epsilon=0.4):
+    def dyna_q(self, number_of_episodes, alpha=0.1, gamma=1, epsilon=0.1):
         steps_used_in_episode = []
-        for _ in range(number_of_episodes):
+        for epi_iter in range(number_of_episodes):
             state = self.env.reset()
             step_nums = 0
             while True:
@@ -48,11 +48,29 @@ class Agent:
                 q_state_current = self.value_state_action[(state, action)]
                 self.value_state_action[(state, action)] = \
                     q_state_current + alpha * (reward + gamma * q_state_next - q_state_current)
+                # update policy
+                value_of_action_list = []
+                possible_action_num = self.env.action_space.n
+                for action_iter in range(possible_action_num):
+                    if self.policies[state][action_iter] == 0:
+                        possible_action_num -= 1
+                        value_of_action_list.append(-10.0)
+                        continue
+                    value_of_action_list.append(self.value_state_action[(state, action_iter)])
+                value_of_action_list = np.array(value_of_action_list)
+                optimal_action = \
+                    np.random.choice(np.flatnonzero(value_of_action_list == value_of_action_list.max()))
+                for action_iter in range(self.env.action_space.n):
+                    if self.policies[state][action_iter] == 0:
+                        continue
+                    if action_iter == optimal_action:
+                        self.policies[state][action_iter] = 1 - epsilon + epsilon / possible_action_num
+                    else:
+                        self.policies[state][action_iter] = epsilon / possible_action_num
                 # add into model
                 self.model[state][action] = [reward, new_state]
                 if [state, action] not in self.model_state_action_list:
-                    self.model_state_action_list.append([state,action])
-
+                    self.model_state_action_list.append([state, action])
                 # planning
                 for n_iter in range(self.n):
                     state_selected, action_selected = random.choice(self.model_state_action_list)
@@ -70,41 +88,26 @@ class Agent:
                 state = new_state
                 step_nums += 1
             steps_used_in_episode.append(step_nums)
-            # control epsilon-greedy
-            for state in range(self.env.state_space.n):
-                value_of_action_list = []
-                possible_action_num = self.env.action_space.n
-                for action_iter in range(possible_action_num):
-                    if self.policies[state][action_iter] == 0:
-                        possible_action_num -= 1
-                        value_of_action_list.append(-10.0)
-                        continue
-                    value_of_action_list.append(self.value_state_action[(state, action_iter)])
-                value_of_action_list = np.array(value_of_action_list)
-                optimal_action = \
-                    np.random.choice(np.flatnonzero(value_of_action_list == value_of_action_list.max()))
-                for action_iter in range(self.env.action_space.n):
-                    if self.policies[state][action_iter] == 0:
-                        continue
-                    if action_iter == optimal_action:
-                        self.policies[state][action_iter] = 1 - epsilon + epsilon/possible_action_num
-                    else:
-                        self.policies[state][action_iter] = epsilon/possible_action_num
+
+
+
         return steps_used_in_episode
 
+
 if __name__ == '__main__':
-    env = GridWorld(8, [5, 13, 21, 10, 18, 26, 34, 38, 46])
+    env = GridWorld(6, [3,9,15,19,25,31,28])
     steps_matrix = np.zeros((3,50))
     agent_n = [0,5,50]
-    repeat_n_times = 30
+    repeat_n_times = 50
     for j in range(repeat_n_times):
         for i in range(3):
             agent = Agent(env, n=agent_n[i])
-            steps = agent.dyna_q(50, alpha=0.1, gamma=0.6)
+            steps = agent.dyna_q(50, alpha=0.1, gamma=0.95,epsilon=.3)
             steps_matrix[i] += np.array(steps)
-    steps_matrix /= 30.
+    steps_matrix /= 50.
+    i = 0
     for steps_array in steps_matrix:
-        color = 0.1
-        plt.plot(steps_array)
-        color *= 3
+        plt.plot(steps_array,label=agent_n[i])
+        i += 1
+    plt.legend()
     plt.show()
