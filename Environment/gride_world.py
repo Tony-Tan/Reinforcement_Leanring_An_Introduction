@@ -12,30 +12,34 @@ class Space:
 
 
 class GridWorld:
-    def __init__(self, n=4, block=[]):
+    def __init__(self, n=4, block=[], start_position=0, end_position_list=[]):
         self.grid_size = n
         self.state_space = Space([i for i in range(n*n)])
         self.action_space = Space([0, 1, 2, 3])
         self.current_state = -1
-        self.termination = [n*n - 1]
         self.block = block
+        self.start_position = start_position
+        if len(end_position_list)==0:
+            self.termination = n*n-1
+        else:
+            self.termination = end_position_list
 
     def reset(self):
         # self.current_state = self.state_space[int(self.grid_size * self.grid_size / 2)]
-        self.current_state = self.state_space[0]
+        self.current_state = self.start_position
         return self.current_state
 
     def step(self, action):
         height = width = self.grid_size
-        punish_value = -10
+        punish_value = -0
         # punish_value = 0
         if action == 0:
             # go left
             new_position = self.current_state % width - 1
             if new_position < 0:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             elif self.current_state - 1 in self.block:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             else:
                 self.current_state -= 1
                 if self.current_state in self.termination:
@@ -47,9 +51,9 @@ class GridWorld:
             # go upper
             new_position = int(self.current_state / width) - 1
             if new_position < 0:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             elif self.current_state - width in self.block:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             else:
                 self.current_state -= width
                 if self.current_state in self.termination:
@@ -61,9 +65,9 @@ class GridWorld:
             # go right
             new_position = self.current_state % width + 1
             if new_position >= width:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             elif self.current_state + 1 in self.block:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             else:
                 self.current_state += 1
                 if self.current_state in self.termination:
@@ -75,9 +79,9 @@ class GridWorld:
             # go down
             new_position = int(self.current_state / width) + 1
             if new_position >= height:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             elif self.current_state + width in self.block:
-                return None, 0, False, True
+                return self.current_state, punish_value, False, {'block': True}
             else:
                 self.current_state += width
                 if self.current_state in self.termination:
