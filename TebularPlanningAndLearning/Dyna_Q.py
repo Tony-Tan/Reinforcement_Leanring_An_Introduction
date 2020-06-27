@@ -17,7 +17,7 @@ class Agent:
         self.epsilon = epsilon
         self.value_state_action = collections.defaultdict(lambda: initial_value)
         self.policies = collections.defaultdict(constant_factory(env.action_space.n))
-        self.model = collections.defaultdict(lambda: {})
+        # self.model = collections.defaultdict(lambda: {})
         self.model_state_action_list = []
         self.n = n
 
@@ -58,14 +58,15 @@ class Agent:
                     else:
                         self.policies[state][action_iter] = epsilon / possible_action_num
                 # add into model
-                if [state, action] not in self.model_state_action_list:
-                    self.model[state][action] = [reward, new_state]
-                    self.model_state_action_list.append([state, action])
+                # if [state, action] not in self.model_state_action_list:
+                # self.model[state][action] = [reward, new_state]
+                self.model_state_action_list.append([state, action, reward, new_state])
                 # planning
                 if len(self.model_state_action_list) > 0:
                     for n_iter in range(self.n):
-                        state_selected, action_selected = random.choice(self.model_state_action_list)
-                        reward_in_model, new_state_in_model = self.model[state_selected][action_selected]
+                        state_selected, action_selected, reward_in_model, new_state_in_model \
+                            = random.choice(self.model_state_action_list)
+                        # reward_in_model, new_state_in_model = self.model[state_selected][action_selected]
                         q_state_next_in_model = []
                         for action_iter in range(self.env.action_space.n):
                             q_state_next_in_model.append(self.value_state_action[(new_state_in_model, action_iter)])
@@ -102,8 +103,9 @@ if __name__ == '__main__':
     env = GridWorld(6, [24, 25, 26, 27, 28], start_position=31, end_position_list=[5])
     agent = Agent(env, n=10)
     dq_step_rewards_list = []
+    steps = 0
     for i in range(100):
-        steps = agent.dyna_q(1, alpha=0.1, gamma=0.95, epsilon=.3)[0]
+        steps += agent.dyna_q(1, alpha=0.1, gamma=0.95, epsilon=.3)[0]
         dq_step_rewards_list.append([steps, i])
         if i == 50:
             agent.env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])

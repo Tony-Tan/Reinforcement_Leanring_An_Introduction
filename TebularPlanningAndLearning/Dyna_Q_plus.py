@@ -91,8 +91,8 @@ if __name__ == '__main__':
     dqp_steps = 0
     dq_step_rewards_list = []
     dq_steps = 0
-    agent_dqp = Agent(env, n=50)
-    agent_dq = dq.Agent(env, n=50, initial_value=0.5)
+    agent_dqp = Agent(env, n=10)
+    agent_dq = dq.Agent(env, n=10, initial_value=0.5)
     for i in range(episode_numbers):
         dqp_steps += agent_dqp.dyna_q_p(1, alpha=0.1, gamma=0.95, epsilon=.3)[0]
         dqp_step_rewards_list.append([dqp_steps, i])
