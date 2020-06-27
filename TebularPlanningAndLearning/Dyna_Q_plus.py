@@ -86,21 +86,21 @@ class Agent:
 
 if __name__ == '__main__':
     env = GridWorld(6, [24,25,26,27,28], start_position=31, end_position_list=[5])
-    episode_numbers = 400
+    episode_numbers = 600
     dqp_step_rewards_list = []
     dqp_steps = 0
     dq_step_rewards_list = []
     dq_steps = 0
-    agent_dqp = Agent(env, n=10)
-    agent_dq = dq.Agent(env, n=10, initial_value=0.5)
+    agent_dqp = Agent(env, n=20)
+    agent_dq = dq.Agent(env, n=20)
     for i in range(episode_numbers):
         dqp_steps += agent_dqp.dyna_q_p(1, alpha=0.1, gamma=0.95, epsilon=.3)[0]
         dqp_step_rewards_list.append([dqp_steps, i])
         dq_steps += agent_dq.dyna_q(1, alpha=0.1, gamma=0.95, epsilon=.3)[0]
         dq_step_rewards_list.append([dq_steps, i])
         if i == episode_numbers/2:
-            agent_dqp.env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
-            agent_dq.env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
+            agent_dqp.env = GridWorld(6, [25, 26, 27, 28], start_position=31, end_position_list=[5])
+            agent_dq.env = GridWorld(6, [25, 26, 27, 28], start_position=31, end_position_list=[5])
     dqp_step_rewards_list = np.array(dqp_step_rewards_list)
     plt.plot(dqp_step_rewards_list[:, 0], dqp_step_rewards_list[:, 1], label='Dyna_Q+')
     dq_step_rewards_list = np.array(dq_step_rewards_list)
