@@ -105,6 +105,10 @@ class GridWorld:
                     plt.text((j + 1.05) / (n + 1), 1 - (i + 0.95) / (n + 1), 'B',
                              size='medium')
                     continue
+                if i * n + j == self.start_position:
+                    plt.text((j + 1.05) / (n + 1), 1 - (i + 0.95) / (n + 1), 'S',
+                             size='medium')
+
                 for action_iter in range(size_of_action_space):
                     if policy[i * n + j][action_iter] != 0:
                         length = policy[i * n + j][action_iter]
