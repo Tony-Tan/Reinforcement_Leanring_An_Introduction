@@ -108,15 +108,15 @@ if __name__ == '__main__':
     # plt.legend()
     # plt.show()
 
-    env = GridWorld(6, [24, 25, 26, 27, 28], start_position=31, end_position_list=[5])
+    env = GridWorld(6, [25, 26, 27, 28,29], start_position=31, end_position_list=[5])
     agent = Agent(env, n=10, kappa=0)
     dq_step_rewards_list = []
     steps = 0
-    for i in range(100):
+    for i in range(400):
         agent.dyna_q_plus(1, alpha=0.1, gamma=0.95, epsilon=.3)
         dq_step_rewards_list.append([agent.total_step_num, i])
-        if i == 50:
-            agent.env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
+        # if i == 50:
+        #     agent.env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
     dq_step_rewards_list = np.array(dq_step_rewards_list)
     plt.plot(dq_step_rewards_list[:, 0], dq_step_rewards_list[:, 1], label='Dyna_Q')
     plt.legend()

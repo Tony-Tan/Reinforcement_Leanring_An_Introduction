@@ -127,9 +127,9 @@ if __name__ == '__main__':
     env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
     agent = Agent(env, n=5, theta=0.01)
     steps = 0
-    pw_step_list = agent.prioritized_sweeping(1000, alpha=0.1, gamma=0.95, epsilon=.3)
+    pw_step_list = agent.prioritized_sweeping(400, alpha=0.1, gamma=0.95, epsilon=.3)
     pw_step_list = np.array(pw_step_list)
-    plt.plot(pw_step_list, np.arange(1, 1001), label='Prioritized Sweeping')
+    plt.plot(pw_step_list, np.arange(1, 401), label='Prioritized Sweeping')
     agent.env.plot_grid_world(agent.policies)
     plt.legend()
     plt.show()
