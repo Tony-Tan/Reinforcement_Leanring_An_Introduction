@@ -10,20 +10,30 @@ def constant_factory(n):
     return lambda: probability_list/np.sum(probability_list)
 
 
-class LinearFunction:
-    def __init__(self, d):
-        self.dim = d
-        self.weight = np.array([[0.],[0.]])
+class StateAggregation:
+    def __init__(self, min_state, max_state, aggregation_size):
+        self.min_state = min_state
+        self.max_state = max_state
+        self.aggregation_size = aggregation_size
+        self.aggregation_num = int((max_state-min_state)/aggregation_size) + 1
+        if (max_state-min_state) % aggregation_size == 0:
+            self.aggregation_num -= 1
+        self.weight = np.zeros(self.aggregation_num)
 
     def __call__(self, x):
-        x_ = np.array([[1],[x]])
-        return np.dot(self.weight.transpose(), x_)
+        current_position = int(x / self.aggregation_size)
+        return self.weight[current_position]
 
+    def derivation(self, x):
+        derivative = np.zeros(self.aggregation_num)
+        current_position = int(x/self.aggregation_size)
+        derivative[current_position] = 1.0
+        return derivative
 
 class Agent:
-    def __init__(self, env, dimension):
+    def __init__(self, env, min_state, max_state, aggregation_size):
         self.env = env
-        self.value_state = LinearFunction(dimension)
+        self.value_state = StateAggregation(min_state, max_state, aggregation_size)
         self.policies = collections.defaultdict(constant_factory(env.action_space.n))
 
     def select_action(self, state):
@@ -57,16 +67,16 @@ class Agent:
                     continue
                 g = episode[i][0]
                 # s /= 1000.
-                delta_value = np.array([[1.], [s]])
-                self.value_state.weight += learning_rate * (g - self.value_state(s)) * delta_value
+                delta_value = self.value_state.derivation(s)
+                self.value_state.weight += learning_rate * (g - self.value_state(s))*delta_value
 
 
 if __name__ == '__main__':
     env = RandomWalk1000()
-    agent = Agent(env, 1)
-    agent.MC_app(1000000, 2e-6)
-    x = np.arange(1, 1001, 1.)
-    y = np.arange(1, 1001, 1.)
+    agent = Agent(env, 0, 1000, 100)
+    agent.MC_app(100000, 2e-5)
+    x = np.arange(1, 999, 1.)
+    y = np.arange(1, 999, 1.)
     # for i in range(1, x.size, 2):
     #     y[i-1] = agent.value_state(x[i-1] + 50)
     #     y[i] = agent.value_state(x[i] - 50)
