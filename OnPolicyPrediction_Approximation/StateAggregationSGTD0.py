@@ -41,43 +41,32 @@ class Agent:
         action = np.random.choice(self.env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def MC_app(self, number_of_episodes, learning_rate, state_num=1000, gamma=1):
+    def SGTD_app(self, number_of_episodes, learning_rate, state_num=1000, gamma=1):
         mu = np.zeros(state_num)
         for _ in range(number_of_episodes):
-            episode = []
             state = self.env.reset()
             action = self.select_action(state)
-            episode.append([0, state, action])
             while True:
                 mu[state] += 1.0
                 new_state, reward, is_done, _ = self.env.step(action)
                 action = self.select_action(state)
+                delta_value = self.value_state.derivation(state)
+                if new_state is not None:
+                    self.value_state.weight += learning_rate * (reward +
+                                                                gamma * self.value_state(new_state) -
+                                                                self.value_state(state)) * delta_value
+                else:
+                    self.value_state.weight += learning_rate * (reward - self.value_state(state)) * delta_value
                 state = new_state
-                episode.append([reward, state, action])
                 if is_done:
                     break
-            # update g base on g = gamma * g + R_{t+1}
-            g = 0
-            for i in range(len(episode)-1, -1, -1):
-                g = gamma*g + episode[i][0]
-                # g += episode[i][0]
-                episode[i][0] = g
-
-            for i in range(0, len(episode)):
-                s = episode[i][1]
-                if s is None:
-                    continue
-                g = episode[i][0]
-                # s /= 1000.
-                delta_value = self.value_state.derivation(s)
-                self.value_state.weight += learning_rate * (g - self.value_state(s))*delta_value
         return mu
 
 
 if __name__ == '__main__':
     env = RandomWalk1000()
     agent = Agent(env, 0, 1000, 100)
-    mu = agent.MC_app(100000, 2e-5)
+    mu = agent.SGTD_app(10000, 1e-3)
     mu = mu/np.sum(mu)
     x = np.arange(1, 999, 1.)
     y = np.arange(1, 999, 1.)
