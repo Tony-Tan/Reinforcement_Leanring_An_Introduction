@@ -41,13 +41,15 @@ class Agent:
         action = np.random.choice(self.env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def MC_app(self, number_of_episodes, learning_rate, gamma=1):
+    def MC_app(self, number_of_episodes, learning_rate, state_num=1000, gamma=1):
+        mu = np.zeros(state_num)
         for _ in range(number_of_episodes):
             episode = []
             state = self.env.reset()
             action = self.select_action(state)
             episode.append([0, state, action])
             while True:
+                mu[state] += 1.0
                 new_state, reward, is_done, _ = self.env.step(action)
                 action = self.select_action(state)
                 state = new_state
@@ -69,12 +71,14 @@ class Agent:
                 # s /= 1000.
                 delta_value = self.value_state.derivation(s)
                 self.value_state.weight += learning_rate * (g - self.value_state(s))*delta_value
+        return mu
 
 
 if __name__ == '__main__':
     env = RandomWalk1000()
     agent = Agent(env, 0, 1000, 100)
-    agent.MC_app(100000, 2e-5)
+    mu = agent.MC_app(1000, 2e-5)
+    mu = mu/np.sum(mu)
     x = np.arange(1, 999, 1.)
     y = np.arange(1, 999, 1.)
     # for i in range(1, x.size, 2):
@@ -83,5 +87,8 @@ if __name__ == '__main__':
     print(agent.value_state.weight)
     for i in range(x.size):
         y[i] = agent.value_state(x[i])
+    plt.figure(0)
     plt.plot(x, y)
+    plt.figure(1)
+    plt.bar(range(len(mu)), mu, color='gray',width=1)
     plt.show()
