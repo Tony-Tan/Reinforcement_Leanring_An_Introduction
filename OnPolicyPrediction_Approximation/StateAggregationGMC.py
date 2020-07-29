@@ -2,7 +2,6 @@ from Environment.random_walk_1000_states import RandomWalk1000
 import numpy as np
 import collections
 import matplotlib.pyplot as plt
-import random
 
 
 def constant_factory(n):
@@ -29,6 +28,7 @@ class StateAggregation:
         current_position = int(x/self.aggregation_size)
         derivative[current_position] = 1.0
         return derivative
+
 
 class Agent:
     def __init__(self, env, min_state, max_state, aggregation_size):
