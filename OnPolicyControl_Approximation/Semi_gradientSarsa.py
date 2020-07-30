@@ -31,7 +31,7 @@ class Agent:
         self.env = environment_
         self.tiling_block_num = 8
         self.tiling_num = 8
-        self.value_of_state_action = LinearFunction(self.tiling_num)
+        self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
         height = self.env.velocity_bound[1] - self.env.velocity_bound[0]
@@ -42,7 +42,7 @@ class Agent:
 
     def state_feature_extract(self, state):
         position, velocity = state
-        feature = np.zeros(self.tiling_num)
+        feature = np.zeros(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
         x = position - self.env.position_bound[0]
         y = velocity - self.env.velocity_bound[0]
         for i in range(self.tiling_num):
@@ -50,10 +50,11 @@ class Agent:
             y_ = y - i * self.height_step
             x_position = int(x_ / self.block_width) + 1
             y_position = int(y_ / self.block_height) + 1
-            feature[i] = y_position * self.tiling_block_num + x_position
+            feature[i*self.tiling_block_num * self.tiling_block_num +
+                    y_position * self.tiling_block_num + x_position] = 1
         return feature
 
-    def select_action(self, state_feature, epsilon=0.1):
+    def select_action(self, state_feature, epsilon=0.3):
         value_of_action_list = []
         policies = np.zeros(self.env.action_space.n)
         for action_iter in range(self.env.action_space.n):
@@ -70,15 +71,19 @@ class Agent:
         action = np.random.choice(self.env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def running(self, iteration_times, alpha=0.00001, gamma=0.9):
+    def running(self, iteration_times, alpha=0.01, gamma=0.9):
+        total_step = []
         for iteration_time in range(iteration_times):
+            step_num = 0
             state = self.env.reset()
             state_feature = self.state_feature_extract(state)
             action = self.select_action(state_feature)
             # get reward R and next state S'
             while True:
                 next_state, reward, is_done, _ = self.env.step(action)
-                next_state_feature = self.state_feature_extract(next_state)
+                step_num += 1
+                if next_state is not None:
+                    next_state_feature = self.state_feature_extract(next_state)
                 if is_done:
                     self.value_of_state_action.weight += \
                         alpha * (reward - self.value_of_state_action(state_feature, action)) * \
@@ -91,10 +96,13 @@ class Agent:
                     self.value_of_state_action.derivative(state_feature, action)
                 action = next_action
                 state_feature = next_state_feature
+            total_step.append(step_num)
+        return total_step
 
 
 if __name__ == '__main__':
     env = MountainCar()
     agent = Agent(env)
-    agent.running(1)
-
+    step_num_list = agent.running(100)
+    plt.plot(step_num_list)
+    plt.show()

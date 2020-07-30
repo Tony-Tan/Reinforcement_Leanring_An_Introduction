@@ -44,25 +44,28 @@ class MountainCar:
 
         self.current_position = self.current_position + self.current_velocity
         self.current_position = bound(self.current_position, self.position_bound)
-        if self.current_position == self.position_bound[1]:
+        if self.current_position == self.position_bound[0]:
             self.current_velocity = 0
+        if self.current_position == self.position_bound[1]:
             return None, 0, True, {}
         else:
-            return [self.current_position,self.current_velocity], -1, False, {}
+            return [self.current_position, self.current_velocity], -1, False, {}
 
 
 if __name__ == '__main__':
     action_taken = 2
     env = MountainCar()
-    state, reward, is_done, _ = env.reset()
+    env.current_velocity = 0
+    env.current_position = -1.2
     position_list = []
     velocity_list = []
-    for step_num in range(100):
-        action_taken = random.randint(0, 2)
+    for step_num in range(200):
+        action_taken = 2
         new_state, reward, is_done, _ = env.step(action_taken)
-        position_list.append(new_state)
-        velocity_list.append(env.current_velocity)
+        if is_done:
+            break
+        position_list.append(new_state[0])
     plt.plot(position_list, label='position')
-    plt.plot(velocity_list, label='velocity')
+    # plt.plot(velocity_list, label='velocity')
     plt.legend()
     plt.show()
