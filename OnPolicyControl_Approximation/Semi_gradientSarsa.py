@@ -2,6 +2,7 @@ import collections
 from Environment.mountain_car import MountainCar
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 
 def constant_factory(n):
@@ -11,26 +12,27 @@ def constant_factory(n):
 
 class LinearFunction:
     def __init__(self, n):
+        self.n = n
         self.weight = np.zeros(n+1)
 
     def __call__(self, x_1, x_2):
-        x = [i for i in x_1]
-        x.append(x_2)
-        x = np.array(x)
-        return self.weight.transpose().dot(x)
+        sum = 0
+        for i in x_1:
+            sum += self.weight[i]
+        sum += self.weight[self.n] * x_2
+        return sum
 
-    def derivative(self,  x_1, x_2):
-        x = [i for i in x_1]
-        x.append(x_2)
-        x = np.array(x)
-        return x
+    def update_weight(self, delta_value, alpha, x_1, x_2):
+        for i in x_1:
+            self.weight[i] += alpha * delta_value * 1
+        self.weight[self.n] += alpha * delta_value * x_2
 
 
 class Agent:
     def __init__(self, environment_):
         self.env = environment_
         self.tiling_block_num = 8
-        self.tiling_num = 8
+        self.tiling_num = 4
         self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
@@ -42,16 +44,15 @@ class Agent:
 
     def state_feature_extract(self, state):
         position, velocity = state
-        feature = np.zeros(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
+        feature = []
         x = position - self.env.position_bound[0]
         y = velocity - self.env.velocity_bound[0]
         for i in range(self.tiling_num):
             x_ = x - i * self.width_step
             y_ = y - i * self.height_step
-            x_position = int(x_ / self.block_width) + 1
-            y_position = int(y_ / self.block_height) + 1
-            feature[i*self.tiling_block_num * self.tiling_block_num +
-                    y_position * self.tiling_block_num + x_position] = 1
+            x_position = int(x_ / self.block_width + 1)
+            y_position = int(y_ / self.block_height + 1)
+            feature.append(i*self.tiling_block_num * self.tiling_block_num + y_position * self.tiling_block_num + x_position)
         return feature
 
     def select_action(self, state_feature, epsilon=0.3):
@@ -71,7 +72,7 @@ class Agent:
         action = np.random.choice(self.env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def running(self, iteration_times, alpha=0.01, gamma=0.9):
+    def running(self, iteration_times, alpha=0.01, gamma=0.1):
         total_step = []
         for iteration_time in range(iteration_times):
             step_num = 0
@@ -82,27 +83,54 @@ class Agent:
             while True:
                 next_state, reward, is_done, _ = self.env.step(action)
                 step_num += 1
+                next_state_feature = 0
                 if next_state is not None:
                     next_state_feature = self.state_feature_extract(next_state)
                 if is_done:
-                    self.value_of_state_action.weight += \
-                        alpha * (reward - self.value_of_state_action(state_feature, action)) * \
-                        self.value_of_state_action.derivative(state_feature, action)
+                    self.value_of_state_action.update_weight(reward - self.value_of_state_action(state_feature, action),
+                                                             alpha, state_feature, action)
+                    # self.value_of_state_action.weight += \
+                    #     alpha * (reward - self.value_of_state_action(state_feature, action)) * \
+                    #     self.value_of_state_action.derivative(state_feature, action)
                     break
                 next_action = self.select_action(next_state_feature)
-                self.value_of_state_action.weight += \
-                    alpha * (reward + gamma * self.value_of_state_action(next_state_feature, next_action)
-                             - self.value_of_state_action(state_feature, action)) * \
-                    self.value_of_state_action.derivative(state_feature, action)
+                self.value_of_state_action.update_weight(reward + gamma * self.value_of_state_action(next_state_feature,
+                                                                                                     next_action)
+                                                         - self.value_of_state_action(state_feature, action),
+                                                         alpha, state_feature, action)
+                # self.value_of_state_action.weight += \
+                #     alpha * (reward + gamma * self.value_of_state_action(next_state_feature, next_action)
+                #              - self.value_of_state_action(state_feature, action)) * \
+                #     self.value_of_state_action.derivative(state_feature, action)
                 action = next_action
                 state_feature = next_state_feature
             total_step.append(step_num)
-        return total_step
+        return np.array(total_step)
 
 
 if __name__ == '__main__':
     env = MountainCar()
-    agent = Agent(env)
-    step_num_list = agent.running(100)
-    plt.plot(step_num_list)
+
+    step_num_list = np.zeros(100)
+    for _ in range(10):
+        print('1 round ' + str(_))
+        agent = Agent(env)
+        step_num_list += agent.running(100, alpha=0.1/8.)
+    plt.plot(step_num_list/10., c='g', alpha=0.7, label='$\\alpha$=0.1/8')
+
+    step_num_list = np.zeros(100)
+    for _ in range(10):
+        print('2 round ' + str(_))
+        agent = Agent(env)
+        step_num_list += agent.running(100, alpha=0.2/8.)
+    plt.plot(step_num_list/10., c='b', alpha=0.7, label='$\\alpha$=0.2/8')
+
+    step_num_list = np.zeros(100)
+    for _ in range(10):
+        print('3 round ' + str(_))
+        agent = Agent(env)
+        step_num_list += agent.running(100, alpha=0.5/8.)
+    plt.plot(step_num_list/10., c='r', alpha=0.7, label='$\\alpha$=0.5/8')
+
+    plt.legend()
     plt.show()
