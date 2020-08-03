@@ -32,7 +32,7 @@ class Agent:
     def __init__(self, environment_):
         self.env = environment_
         self.tiling_block_num = 8
-        self.tiling_num = 4
+        self.tiling_num = 8
         self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
@@ -95,7 +95,7 @@ class Agent:
                     for iter_q in n_queue:
                         g += gamma_*iter_q[1]
                         gamma_ *= gamma
-                    while len(n_queue) != 1:
+                    while len(n_queue) != 0:
                         state_feature_2_update, r, action_2_update = n_queue.popleft()
                         self.value_of_state_action.update_weight(
                             g - self.value_of_state_action(state_feature_2_update, action_2_update),
@@ -123,35 +123,30 @@ class Agent:
                             state_feature_2_update, action_2_update)
                         state_feature = next_state_feature
                         action = self.select_action(state_feature)
-
+            print(iteration_time, step_num)
             total_step.append(step_num)
         return np.array(total_step)
 
 
 if __name__ == '__main__':
     env = MountainCar()
-    repeat_times = 1
-    n = 0
-    step_num_list = np.zeros(100)
+    repeat_times = 5
+    n = 1
+    episode_num = 500
+    step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(100, n, alpha=0.1/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.1/8')
+        step_num_list += agent.running(episode_num, n, alpha=0.5/8.)
+    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.5/8')
 
-    step_num_list = np.zeros(100)
-    for _ in range(repeat_times):
-        print('2 round ' + str(_))
-        agent = Agent(env)
-        step_num_list += agent.running(100, n, alpha=0.2/8.)
-    plt.plot(step_num_list/float(repeat_times), c='b', alpha=0.7, label='$\\alpha$=0.2/8')
-
-    step_num_list = np.zeros(100)
+    n = 8
+    step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('3 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(100, n, alpha=0.5/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.5/8')
+        step_num_list += agent.running(episode_num, n, alpha=0.3/8.)
+    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.3/8')
 
     plt.legend()
     plt.show()

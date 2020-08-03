@@ -32,7 +32,7 @@ class Agent:
     def __init__(self, environment_):
         self.env = environment_
         self.tiling_block_num = 8
-        self.tiling_num = 4
+        self.tiling_num = 8
         self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
@@ -103,7 +103,7 @@ class Agent:
 
 if __name__ == '__main__':
     env = MountainCar()
-    repeat_times = 1
+    repeat_times = 30
     step_num_list = np.zeros(100)
     for _ in range(repeat_times):
         print('1 round ' + str(_))
