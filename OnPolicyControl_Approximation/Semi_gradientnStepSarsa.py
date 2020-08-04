@@ -90,7 +90,7 @@ class Agent:
                     next_state_feature = self.state_feature_extract(next_state)
 
                 if is_done:
-                    g = 0
+                    g = 0.
                     gamma_ = 1
                     for iter_q in n_queue:
                         g += gamma_*iter_q[1]
@@ -130,23 +130,23 @@ class Agent:
 
 if __name__ == '__main__':
     env = MountainCar()
-    repeat_times = 5
+    repeat_times = 1
     n = 1
-    episode_num = 500
+    episode_num = 200
     step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.5/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.5/8')
+        step_num_list += agent.running(episode_num, n, alpha=0.1/8.)
+    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     n = 8
     step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
-        print('3 round ' + str(_))
+        print('2 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.3/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.3/8')
+        step_num_list += agent.running(episode_num, n, alpha=0.1/8.)
+    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     plt.legend()
     plt.show()
