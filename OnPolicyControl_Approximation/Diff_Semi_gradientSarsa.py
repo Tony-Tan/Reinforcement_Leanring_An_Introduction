@@ -46,8 +46,8 @@ class Agent:
         for i in range(max_step_num):
             next_state, reward, is_done, _ = self.env.step(action)
             next_action = self.select_action(next_state)
-            delta = reward - self.average_reward + self.value_of_state_action([next_state, next_action])\
-                - self.value_of_state_action([state, action])
+            delta = reward - self.average_reward + self.value_of_state_action([next_state, next_action]) \
+                    - self.value_of_state_action([state, action])
             self.average_reward += beta * delta
             self.value_of_state_action.update_weight(delta, alpha, (state, action))
 
@@ -74,12 +74,20 @@ if __name__ == '__main__':
     rewards_distribution = [0.25, 0.25, 0.25, 0.25]
     env = QueuingTask(rewards_list, rewards_distribution)
     agent = Agent(env)
-    agent.running(100000)
+    agent.running(1000000)
+    diff_value_matrix = []
     for i in range(4):
-        for j in range(1, 11):
-            # if agent.policies[(i, j)][0] > agent.policies[(i, j)][1]:
-            #     print('Reject', end=' ')
-            # else:
-            #     print('Accept', end=' ')
+        diff_value_list = []
+        for j in range(0, 11):
             print(agent.policies[(i, j)], end=' ')
+            if agent.policies[(i, j)][0] > agent.policies[(i, j)][1]:
+                diff_value_list.append(agent.value_of_state_action(([i, j], 0)))
+            else:
+                diff_value_list.append(agent.value_of_state_action(([i, j], 1)))
+        diff_value_matrix.append(diff_value_list)
         print('\n')
+
+    for i in range(len(diff_value_matrix)):
+        plt.plot(diff_value_matrix[i], label='priority ' + str(rewards_list[i]))
+    plt.legend()
+    plt.show()

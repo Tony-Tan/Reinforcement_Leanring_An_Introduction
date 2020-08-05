@@ -86,7 +86,7 @@ if __name__ == '__main__':
     rewards_list = [1, 2, 4, 8]
     rewards_distribution = [0.25, 0.25, 0.25, 0.25]
     env = QueuingTask(rewards_list, rewards_distribution)
-    agent = Agent(env, 0)
+    agent = Agent(env, 4)
     agent.running(1000000)
     for i in range(4):
         for j in range(1, 11):
