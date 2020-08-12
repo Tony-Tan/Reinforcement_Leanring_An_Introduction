@@ -22,14 +22,14 @@ class RandomWalk:
         if action == 0:
             next_state = self.current_state - 1
             if next_state == 0:
-                return None, -1, True, {}
+                return next_state, -1, True, {}
             else:
                 self.current_state -= 1
                 return self.current_state, 0, False, {}
         if action == 1:
             next_state = self.current_state + 1
             if next_state == self.state_space.n - 1:
-                return None, 1, True, {}
+                return next_state, 1, True, {}
             else:
                 self.current_state += 1
                 return self.current_state, 0, False, {}
