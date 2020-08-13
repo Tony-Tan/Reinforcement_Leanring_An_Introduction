@@ -81,7 +81,7 @@ class Agent:
 if __name__ == '__main__':
     env = RandomWalk(19)
     agent = Agent(env)
-    agent.estimating(2000, 0.8, 0.01, 0.9)
+    agent.estimating(20000, 0.8, 0.01, 0.9)
     value_of_state = []
     for i_state in range(1, env.state_space.n - 1):
         value_of_state.append(agent.value_of_state(i_state/19.))
