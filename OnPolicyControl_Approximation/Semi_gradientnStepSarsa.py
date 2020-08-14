@@ -13,19 +13,13 @@ def constant_factory(n):
 class LinearFunction:
     def __init__(self, n):
         self.n = n
-        self.weight = np.zeros(n+1)
+        self.weight = np.zeros(n)
 
-    def __call__(self, x_1, x_2):
+    def __call__(self, x):
         sum = 0
-        for i in x_1:
+        for i in x:
             sum += self.weight[i]
-        sum += self.weight[self.n] * x_2
         return sum
-
-    def update_weight(self, delta_value, alpha, x_1, x_2):
-        for i in x_1:
-            self.weight[i] += alpha * delta_value * 1.
-        self.weight[self.n] += alpha * delta_value * x_2
 
 
 class Agent:
@@ -33,7 +27,7 @@ class Agent:
         self.env = environment_
         self.tiling_block_num = 8
         self.tiling_num = 8
-        self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num)
+        self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num*10)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
         height = self.env.velocity_bound[1] - self.env.velocity_bound[0]
@@ -41,25 +35,36 @@ class Agent:
         self.block_height = height / (self.tiling_block_num - 1)
         self.width_step = self.block_width / self.tiling_num
         self.height_step = self.block_height / self.tiling_num
+        self.tiling_dict = {}
 
-    def state_feature_extract(self, state):
+    def state_feature_extract(self, state, action):
         position, velocity = state
         feature = []
         x = position - self.env.position_bound[0]
         y = velocity - self.env.velocity_bound[0]
         for i in range(self.tiling_num):
+            # x_ = x - self.block_start_position[i][0]
+            # y_ = y - self.block_start_position[i][1]
             x_ = x - i * self.width_step
             y_ = y - i * self.height_step
             x_position = int(x_ / self.block_width + 1)
             y_position = int(y_ / self.block_height + 1)
-            feature.append(i*self.tiling_block_num * self.tiling_block_num + y_position * self.tiling_block_num + x_position)
+            org_feature = (i * self.tiling_block_num * self.tiling_block_num +
+                           y_position * self.tiling_block_num + x_position) * 10 + action
+
+            if org_feature in self.tiling_dict.keys():
+                feature.append(self.tiling_dict[org_feature])
+            else:
+                self.tiling_dict[org_feature] = len(self.tiling_dict.keys())
+                feature.append(self.tiling_dict[org_feature])
         return feature
 
-    def select_action(self, state_feature, epsilon=0.3):
+    def select_action(self, state, epsilon=0.1):
         value_of_action_list = []
         policies = np.zeros(self.env.action_space.n)
         for action_iter in range(self.env.action_space.n):
-            value_of_action_list.append(self.value_of_state_action(state_feature, action_iter))
+            state_action_feature = self.state_feature_extract(state, action_iter)
+            value_of_action_list.append(self.value_of_state_action(state_action_feature))
         value_of_action_list = np.array(value_of_action_list)
         optimal_action = np.random.choice(
             np.flatnonzero(value_of_action_list == value_of_action_list.max()))
@@ -77,18 +82,13 @@ class Agent:
         for iteration_time in range(iteration_times):
             step_num = 0
             state = self.env.reset()
-            state_feature = self.state_feature_extract(state)
-            action = self.select_action(state_feature)
+            action = self.select_action(state)
             # get reward R and next state S'
             n_queue = collections.deque()
             while True:
                 next_state, reward, is_done, _ = self.env.step(action)
-                n_queue.append([state_feature, reward, action])
+                n_queue.append([state, reward, action])
                 step_num += 1
-                next_state_feature = 0
-                if next_state is not None:
-                    next_state_feature = self.state_feature_extract(next_state)
-
                 if is_done:
                     g = 0.
                     gamma_ = 1
@@ -96,33 +96,36 @@ class Agent:
                         g += gamma_*iter_q[1]
                         gamma_ *= gamma
                     while len(n_queue) != 0:
-                        state_feature_2_update, r, action_2_update = n_queue.popleft()
-                        self.value_of_state_action.update_weight(
-                            g - self.value_of_state_action(state_feature_2_update, action_2_update),
-                            alpha, state_feature_2_update, action_2_update)
+                        state_2_update, r, action_2_update = n_queue.popleft()
+                        state_action_feature = self.state_feature_extract(state_2_update, action_2_update)
+                        delta_value = g - self.value_of_state_action(state_action_feature)
+                        for idx_feature in state_action_feature:
+                            self.value_of_state_action.weight[idx_feature] += alpha * delta_value * 1.0
                         g -= r
                         g /= gamma
                     break
                 else:
                     if len(n_queue) < n + 1:
-                        state_feature = next_state_feature
-                        action = self.select_action(state_feature)
+                        state = next_state
+                        action = self.select_action(state)
                         continue
                     else:
-                        next_action = self.select_action(next_state_feature)
-                        state_feature_2_update, r, action_2_update = n_queue.popleft()
+                        next_action = self.select_action(next_state)
+                        state_2_update, r, action_2_update = n_queue.popleft()
                         # calculate G
                         g = r
                         gamma_ = gamma
                         for iter_q in n_queue:
                             g += gamma_ * iter_q[1]
                             gamma_ *= gamma
-                        g += self.value_of_state_action(next_state_feature, next_action) * gamma_
-                        self.value_of_state_action.update_weight(
-                            g - self.value_of_state_action(state_feature_2_update, action_2_update), alpha,
-                            state_feature_2_update, action_2_update)
-                        state_feature = next_state_feature
-                        action = self.select_action(state_feature)
+                        next_state_action_feature = self.state_feature_extract(next_state, next_action)
+                        state_action_feature = self.state_feature_extract(state_2_update, action_2_update)
+                        g += self.value_of_state_action(next_state_action_feature) * gamma_
+                        delta_value = g - self.value_of_state_action(state_action_feature)
+                        for idx_feature in state_action_feature:
+                            self.value_of_state_action.weight[idx_feature] += alpha * delta_value * 1.0
+                        state = next_state
+                        action = self.select_action(state)
             print(iteration_time, step_num)
             total_step.append(step_num)
         return np.array(total_step)
@@ -130,23 +133,23 @@ class Agent:
 
 if __name__ == '__main__':
     env = MountainCar()
-    repeat_times = 1
+    repeat_times = 30
     n = 1
     episode_num = 200
     step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.1/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
+        step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
+    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.01/8$ and $\\gamma=0.9$')
 
     n = 8
     step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('2 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.1/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
+        step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
+    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.01/8$ and $\\gamma=0.9$')
 
     plt.legend()
     plt.show()
