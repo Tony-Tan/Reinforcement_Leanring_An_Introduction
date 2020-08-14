@@ -141,7 +141,7 @@ if __name__ == '__main__':
         print('1 round ' + str(_))
         agent = Agent(env)
         step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.01/8$ and $\\gamma=0.9$')
+    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     n = 8
     step_num_list = np.zeros(episode_num)
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         print('2 round ' + str(_))
         agent = Agent(env)
         step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.01/8$ and $\\gamma=0.9$')
+    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     plt.legend()
     plt.show()
