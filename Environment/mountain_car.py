@@ -47,7 +47,7 @@ class MountainCar:
         if self.current_position == self.position_bound[0]:
             self.current_velocity = 0
         if self.current_position == self.position_bound[1]:
-            return None, 0, True, {}
+            return [self.current_position, self.current_velocity], 0, True, {}
         else:
             return [self.current_position, self.current_velocity], -1, False, {}
 

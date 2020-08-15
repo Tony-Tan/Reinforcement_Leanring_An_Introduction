@@ -17,10 +17,7 @@ class LinearFunction:
         self.weight = np.zeros(n)
 
     def __call__(self, x):
-        sum = 0
-        for i in x:
-            sum += self.weight[i]
-        return sum
+        return self.weight.dot(x)
 
 
 class Agent:
@@ -28,7 +25,7 @@ class Agent:
         self.env = environment_
         self.tiling_block_num = 8
         self.tiling_num = 8
-        self.size_of_weights = self.tiling_num * self.tiling_block_num * self.tiling_block_num
+        self.size_of_weights = self.tiling_num * self.tiling_block_num * self.tiling_block_num * 4
         self.value_of_state_action = LinearFunction(self.size_of_weights * 4)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
@@ -38,15 +35,10 @@ class Agent:
         self.width_step = self.block_width / self.tiling_num
         self.height_step = self.block_height / self.tiling_num
         self.tiling_dict = {}
-        # self.block_start_position = []
-        # for i in range(self.tiling_num):
-        #     x = self.width_step * random.uniform(0, 1)
-        #     y = self.height_step * random.uniform(0, 1)
-        #     self.block_start_position.append((x, y))
 
     def state_feature_extract(self, state, action):
         position, velocity = state
-        feature = []
+        feature = np.zeros(self.size_of_weights*4)
         x = position - self.env.position_bound[0]
         y = velocity - self.env.velocity_bound[0]
         for i in range(self.tiling_num):
@@ -57,13 +49,13 @@ class Agent:
             x_position = int(x_ / self.block_width + 1)
             y_position = int(y_ / self.block_height + 1)
             org_feature = (i * self.tiling_block_num * self.tiling_block_num +
-                           y_position * self.tiling_block_num + x_position) * 4 + action + 1
+                           y_position * self.tiling_block_num + x_position) * 4 + action
 
             if org_feature in self.tiling_dict.keys():
-                feature.append(self.tiling_dict[org_feature])
+                feature[self.tiling_dict[org_feature]] = 1
             else:
                 self.tiling_dict[org_feature] = len(self.tiling_dict.keys())
-                feature.append(self.tiling_dict[org_feature])
+                feature[self.tiling_dict[org_feature]] = 1
         return feature
 
     # def active_features(self, state_feature, action):
@@ -94,46 +86,41 @@ class Agent:
         for iteration_time in range(iteration_times):
             step_num = 0
             eligibility_trace = np.zeros(self.size_of_weights * 4)
+            q_old = 0
             state = self.env.reset()
             action = self.select_action(state)
+            state_action_feature = self.state_feature_extract(state, action)
             # get reward R and next state S'
             while True:
                 next_state, reward, is_done, _ = self.env.step(action)
-
                 step_num += 1
-                delta = reward
-                state_action_feature = self.state_feature_extract(state, action)
-                for idx_of_feature in state_action_feature:
-                    delta -= self.value_of_state_action.weight[idx_of_feature]
-                    # eligibility_trace[idx_of_feature] += 1
-                    eligibility_trace[idx_of_feature] = 1
+                next_action = self.select_action(next_state)
+                next_state_action_feature = self.state_feature_extract(next_state, next_action)
+                q = self.value_of_state_action.weight.dot(np.array(state_action_feature))
+                q_next = self.value_of_state_action.weight.dot(np.array(next_state_action_feature))
+                delta = reward + gamma * q_next - q
+                self.value_of_state_action.weight = \
+                    gamma * lambda_coe * self.value_of_state_action.weight +\
+                    (1. - alpha * gamma * eligibility_trace.dot(state_action_feature)) * state_action_feature
+                self.value_of_state_action.weight += \
+                    alpha*(delta + q - q_old)*eligibility_trace - \
+                    alpha * (q - q_old) * state_action_feature
+                q_old = q_next
+                state_action_feature = next_state_action_feature
+                action = next_action
 
                 if is_done:
-                    self.value_of_state_action.weight += alpha * delta * eligibility_trace
                     break
-
-                next_action = self.select_action(next_state)
-                next_active_features = self.state_feature_extract(next_state, next_action)
-                for idx_of_feature in next_active_features:
-                    delta += gamma * self.value_of_state_action.weight[idx_of_feature]
-
-                self.value_of_state_action.weight += alpha * delta * eligibility_trace
-                eligibility_trace = gamma * lambda_coe * eligibility_trace
-
-                state = next_state
-                action = self.select_action(state)
-
             total_step.append(step_num)
             print(iteration_time, step_num)
         return np.array(total_step)
 
 
 if __name__ == '__main__':
-
-    repeat_times = 10
+    env = MountainCar()
+    repeat_times = 1
     step_num_list = np.zeros(50)
     for _ in range(repeat_times):
-        env = MountainCar()
         print('1 round ' + str(_))
         agent = Agent(env)
         step_num_list += agent.running(50, alpha=0.01, lambda_coe=0.9)
