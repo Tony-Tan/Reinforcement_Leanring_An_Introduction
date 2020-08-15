@@ -139,6 +139,5 @@ if __name__ == '__main__':
     #     agent = Agent(env)
     #     step_num_list += agent.running(100, alpha=0.5 / 8.)
     # plt.plot(step_num_list / float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.5/8')
-
     plt.legend()
     plt.show()
