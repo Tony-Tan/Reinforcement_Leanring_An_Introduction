@@ -96,11 +96,14 @@ class Agent:
                 step_num += 1
                 next_action = self.select_action(next_state)
                 next_state_action_feature = self.state_feature_extract(next_state, next_action)
+                if is_done:
+                    next_state_action_feature = np.zeros(self.size_of_weights*4)
+
                 q = self.value_of_state_action.weight.dot(np.array(state_action_feature))
                 q_next = self.value_of_state_action.weight.dot(np.array(next_state_action_feature))
                 delta = reward + gamma * q_next - q
-                self.value_of_state_action.weight = \
-                    gamma * lambda_coe * self.value_of_state_action.weight +\
+                eligibility_trace = \
+                    gamma * lambda_coe * eligibility_trace +\
                     (1. - alpha * gamma * eligibility_trace.dot(state_action_feature)) * state_action_feature
                 self.value_of_state_action.weight += \
                     alpha*(delta + q - q_old)*eligibility_trace - \
@@ -123,7 +126,7 @@ if __name__ == '__main__':
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(50, alpha=0.01, lambda_coe=0.9)
+        step_num_list += agent.running(50, alpha=0.01, lambda_coe=0.)
     plt.plot(step_num_list / float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.1/8')
 
     # step_num_list = np.zeros(100)

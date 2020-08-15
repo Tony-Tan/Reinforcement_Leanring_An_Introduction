@@ -136,7 +136,7 @@ if __name__ == '__main__':
         env = MountainCar()
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(50, alpha=0.01, lambda_coe=0.9)
+        step_num_list += agent.running(50, alpha=0.01, lambda_coe=0.68)
     plt.plot(step_num_list / float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.1/8')
 
     # step_num_list = np.zeros(100)
