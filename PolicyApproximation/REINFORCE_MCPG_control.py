@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # for i in range(0, 1):
 
     episode_len = 1000
-    repeat_time = 30
+    repeat_time = 50
     steps = np.zeros(episode_len)
     for i in range(repeat_time):
         print('repeat time ' + str(i))
