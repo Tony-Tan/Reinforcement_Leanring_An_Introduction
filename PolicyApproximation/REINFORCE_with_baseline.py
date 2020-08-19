@@ -40,8 +40,8 @@ class Agent:
         probability_distribution = []
         exp_sum = 0
         for action_iter in self.env.action_space:
-            probability_distribution.append(self.policy(state, action_iter)*5)
-            exp_sum += np.exp(self.policy(state, action_iter)*5)
+            probability_distribution.append(self.policy(state, action_iter)*5.)
+            exp_sum += np.exp(self.policy(state, action_iter)*5.)
         for i in range(len(probability_distribution)):
             probability_distribution[i] = np.exp(probability_distribution[i]) / exp_sum
         action = np.random.choice(env.action_space.n, 1, p=probability_distribution)
@@ -87,21 +87,22 @@ if __name__ == '__main__':
     # for i in range(0, 1):
 
     episode_len = 1000
-    repeat_time = 30
+    repeat_time = 100
     steps = np.zeros(episode_len)
+
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        steps += agent.play(episode_len, 2e-8, 0, 1)
-    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_w=0$')
+        steps += agent.play(episode_len, 2e-7, 2e-6, 1)
+    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=2^{-6}$')
 
     steps = np.zeros(episode_len)
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        steps += agent.play(episode_len, 2e-7, 2e-7, 1)
-    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_w=2^{-5}$')
+        steps += agent.play(episode_len, 2e-7, 0, 1)
+    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=0$')
     plt.legend()
     plt.show()

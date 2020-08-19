@@ -28,8 +28,8 @@ class Agent:
         probability_distribution = []
         exp_sum = 0
         for action_iter in self.env.action_space:
-            probability_distribution.append(self.policy(state, action_iter)*5)
-            exp_sum += np.exp(self.policy(state, action_iter)*5)
+            probability_distribution.append(self.policy(state, action_iter)*5.)
+            exp_sum += np.exp(self.policy(state, action_iter)*5.)
         for i in range(len(probability_distribution)):
             probability_distribution[i] = np.exp(probability_distribution[i]) / exp_sum
         action = np.random.choice(env.action_space.n, 1, p=probability_distribution)
