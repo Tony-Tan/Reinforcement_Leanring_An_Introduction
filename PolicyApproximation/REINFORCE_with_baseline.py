@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # for i in range(0, 1):
 
     episode_len = 1000
-    repeat_time = 100
+    repeat_time = 50
     steps = np.zeros(episode_len)
 
     for i in range(repeat_time):
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        steps += agent.play(episode_len, 2e-7, 0, 1)
-    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=0$')
+        steps += agent.play(episode_len, 2e-8, 0, 1)
+    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-8},\\alpha_w=0$')
     plt.legend()
     plt.show()
