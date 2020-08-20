@@ -27,7 +27,7 @@ class Linear_State_Value:
         return x * self.weight[0] + self.weight[1]
 
     def derivative(self, x):
-        return np.array([x,1.])
+        return np.array([x, 1.])
 
 
 class Agent:
@@ -69,8 +69,8 @@ class Agent:
                 if is_done:
                     break
                 state = new_state
-                # np.set_printoptions(precision=11)
-                # print(self.state_value.weight)
+            # np.set_printoptions(precision=11)
+            # print(eps_iter, self.policy.weight, self.state_value.weight)
             reward_per_episode.append(reward_sum)
         return np.array(reward_per_episode)
 
@@ -79,16 +79,16 @@ if __name__ == '__main__':
 
     # for i in range(0, 1):
     episode_len = 1000
-    repeat_time = 10
+    repeat_time = 100
     steps = np.zeros(episode_len)
 
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        step = agent.play(episode_len, 2e-6, 2e-8, 0.9)
+        step = agent.play(episode_len, 1e-3, 1e-3, 0.9)
         steps += step
         # plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=2^{-6}$')
         # plt.show()
-    plt.plot(steps/repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=2^{-6}$')
+    plt.plot(steps/repeat_time, alpha=0.7, c='r' , label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-3$')
     plt.show()
