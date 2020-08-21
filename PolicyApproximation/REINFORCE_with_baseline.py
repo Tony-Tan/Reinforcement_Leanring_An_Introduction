@@ -3,20 +3,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class Linear_policy:
+class LogisticalFunc:
+    def __call__(self, w):
+        return np.exp(w) / (1. + np.exp(w)) * 0.9 + 0.05
+
+    def derivative(self, w):
+        return np.exp(w) / ((1. + np.exp(w)) ** 2) * 0.9
+
+
+class MyPolicy:
     """
-    l(x,y) = 0*x + a*y + c
+    p = (1-l(w))^x l(w)^{1-x}
     """
 
     def __init__(self):
-        self.weight = np.zeros(2)
-        self.weight[1] = 1.
+        self.weight = 2.
+        self.l = LogisticalFunc()
 
-    def __call__(self, x, y):
-        return self.weight.dot(np.array([x, y])) + 0.000001
+    def __call__(self, state, action):
+        x = action
+        return np.power((1 - self.l(self.weight)), x) * np.power(self.l(self.weight), 1 - x)
 
-    def derivative_ln(self, x, y):
-        return np.array([0, y]) / self.__call__(x, y)
+    def derivative_ln(self, state, action):
+        x = action
+        delta_p = -x * np.power((1 - self.l(self.weight)), x - 1) * self.l.derivative(self.weight) * np.power(
+            self.l(self.weight), 1 - x) + np.power((1 - self.l(self.weight)), x) * (1 - x) * self.l.derivative(
+            self.weight) * np.power(self.l(self.weight), - x)
+        return delta_p / (self.__call__(state, action))
 
 
 class Linear_State_Value:
@@ -26,22 +39,22 @@ class Linear_State_Value:
     def __call__(self, x):
         return x * self.weight[0] + self.weight[1]
 
-    def derivative(self,x):
-        return np.array([x,1.])
+    def derivative(self, x):
+        return np.array([x, 1.])
 
 
 class Agent:
     def __init__(self, env):
         self.env = env
-        self.policy = Linear_policy()
+        self.policy = MyPolicy()
         self.state_value = Linear_State_Value()
 
     def select_action(self, state):
         probability_distribution = []
         exp_sum = 0
         for action_iter in self.env.action_space:
-            probability_distribution.append(self.policy(state, action_iter)*5.)
-            exp_sum += np.exp(self.policy(state, action_iter)*5.)
+            probability_distribution.append(self.policy(state, action_iter) * 5.)
+            exp_sum += np.exp(self.policy(state, action_iter) * 5.)
         for i in range(len(probability_distribution)):
             probability_distribution[i] = np.exp(probability_distribution[i]) / exp_sum
         action = np.random.choice(env.action_space.n, 1, p=probability_distribution)
@@ -78,7 +91,7 @@ class Agent:
                 total_g -= r
                 total_g /= gamma
             # np.set_printoptions(precision=11)
-            # print(eps_iter, self.policy.weight)
+            # print(eps_iter, self.policy(0, 0), self.state_value.weight)
         return np.array(reward_per_episode)
 
 
@@ -87,22 +100,22 @@ if __name__ == '__main__':
     # for i in range(0, 1):
 
     episode_len = 1000
-    repeat_time = 30
+    repeat_time = 10
     steps = np.zeros(episode_len)
 
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        steps += agent.play(episode_len, 2e-7, 2e-6, 1)
-    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=2^{-6}$')
+        steps += agent.play(episode_len, 2e-3, 2e-3, 0.99)
+    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2e-3,\\alpha_w=2e-3$')
 
     steps = np.zeros(episode_len)
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        steps += agent.play(episode_len, 2e-8, 0, 1)
-    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2^{-8},\\alpha_w=0$')
+        steps += agent.play(episode_len, 2e-4, 0, 0.99)
+    plt.plot(steps / repeat_time, alpha=0.7, label='$\\alpha_{\\theta}=2e-3,\\alpha_w=0$')
     plt.legend()
     plt.show()
