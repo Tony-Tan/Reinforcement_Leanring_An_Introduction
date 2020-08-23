@@ -56,12 +56,14 @@ class Agent:
         action = np.random.choice(env.action_space.n, 1, p=probability_distribution)
         return action[0]
 
-    def play(self, number_of_episodes, alpha_theta, alpha_w, gamma):
+    def play(self, number_of_episodes, alpha_theta, alpha_w, lambda_w, lambda_theta, gamma):
         left_policy_prob = []
         for eps_iter in range(number_of_episodes):
             reward_sum = 0
             state = self.env.reset()
             value_i = 1.
+            eligibility_trace_theta = 0
+            eligibility_trace_w = np.zeros(2)
             while True:
                 action = self.select_action(state)
                 new_state, reward, is_done, _ = self.env.step(action)
@@ -69,10 +71,14 @@ class Agent:
                     delta = reward + gamma * self.state_value(new_state) - self.state_value(state)
                 else:
                     delta = reward - self.state_value(state)
+
                 delta_ln_theta = self.policy.derivative_ln(state, action)
                 delta_state_value = self.state_value.derivative(state)
-                self.state_value.weight += alpha_w * delta * delta_state_value
-                self.policy.weight += alpha_theta * value_i * delta * delta_ln_theta
+                eligibility_trace_w = gamma * lambda_w * eligibility_trace_w + delta_state_value
+                eligibility_trace_theta = gamma * lambda_theta * eligibility_trace_theta + value_i * delta_ln_theta
+
+                self.state_value.weight += alpha_w * delta * eligibility_trace_w
+                self.policy.weight += alpha_theta * delta * eligibility_trace_theta
                 value_i *= gamma
                 reward_sum += reward
                 if is_done:
@@ -95,17 +101,17 @@ if __name__ == '__main__':
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        step = agent.play(episode_len, 1e-3, 1e-2, 0.9)
+        step = agent.play(episode_len, 1e-3, 1e-2, 1e-3, 1e-3, 0.9)
         # steps += step
         plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-2$')
 
         agent = Agent(env)
-        step = agent.play(episode_len, 1e-3, 1e-4, 0.9)
+        step = agent.play(episode_len, 1e-3, 1e-4, 1e-3, 1e-3, 0.9)
         # steps += step
         plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-4$')
 
         agent = Agent(env)
-        step = agent.play(episode_len, 1e-2, 1e-4, 0.9)
+        step = agent.play(episode_len, 1e-2, 1e-4,  1e-3, 1e-3, 0.9)
         # steps += step
         plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-2,\\alpha_w=1e-4$')
 
