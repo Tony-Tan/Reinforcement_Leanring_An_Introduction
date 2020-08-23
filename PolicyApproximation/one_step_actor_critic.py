@@ -57,7 +57,7 @@ class Agent:
         return action[0]
 
     def play(self, number_of_episodes, alpha_theta, alpha_w, gamma):
-        reward_per_episode = []
+        left_policy_prob = []
         for eps_iter in range(number_of_episodes):
             reward_sum = 0
             state = self.env.reset()
@@ -78,25 +78,38 @@ class Agent:
                 if is_done:
                     break
                 state = new_state
-            np.set_printoptions(precision=11)
-            print(eps_iter, self.policy(0, 0), self.policy(0, 1), self.state_value.weight, reward_sum)
-            reward_per_episode.append(reward_sum)
-        return np.array(reward_per_episode)
+            if eps_iter%100 == 0:
+                np.set_printoptions(precision=11)
+                print(eps_iter, self.policy(0, 0), self.policy(0, 1), self.state_value.weight, reward_sum)
+                left_policy_prob.append(self.state_value.weight[1])
+        return np.array(left_policy_prob)
 
 
 if __name__ == '__main__':
     # for i in range(0, 1):
-    episode_len = 100000
-    repeat_time = 10
+    episode_len = 50000
+    repeat_time = 1
     steps = np.zeros(episode_len)
 
     for i in range(repeat_time):
         print('repeat time ' + str(i))
         env = ShortCorridor()
         agent = Agent(env)
-        step = agent.play(episode_len, 1e-3, 1e-3, 1)
-        steps += step
-        # plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=2^{-7},\\alpha_w=2^{-6}$')
-        # plt.show()
-    plt.plot(steps / repeat_time, alpha=0.7, c='r', label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-3$')
-    plt.show()
+        step = agent.play(episode_len, 1e-3, 1e-2, 0.9)
+        # steps += step
+        plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-2$')
+
+        agent = Agent(env)
+        step = agent.play(episode_len, 1e-3, 1e-4, 0.9)
+        # steps += step
+        plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-4$')
+
+        agent = Agent(env)
+        step = agent.play(episode_len, 1e-2, 1e-4, 0.9)
+        # steps += step
+        plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-2,\\alpha_w=1e-4$')
+
+        plt.legend()
+        plt.show()
+    # plt.plot(steps / repeat_time, alpha=0.7, c='r', label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-3$')
+    # plt.show()
