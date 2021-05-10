@@ -1,5 +1,5 @@
 import TebularPlanningAndLearning.Dyna_Q_plus as DQp
-from Environment.gride_world import GridWorld
+from environment.gride_world import GridWorld
 import numpy as np
 import matplotlib.pyplot as plt
 

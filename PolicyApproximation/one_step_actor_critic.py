@@ -1,4 +1,4 @@
-from Environment.corridor_gridworld import ShortCorridor
+from environment.corridor_gridworld import ShortCorridor
 import numpy as np
 import matplotlib.pyplot as plt
 

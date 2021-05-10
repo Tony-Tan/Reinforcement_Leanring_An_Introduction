@@ -1,5 +1,5 @@
 import collections
-from Environment.mountain_car import MountainCar
+from environment.mountain_car import MountainCar
 import numpy as np
 import matplotlib.pyplot as plt
 import random

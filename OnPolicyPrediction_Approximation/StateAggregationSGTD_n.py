@@ -1,4 +1,4 @@
-from Environment.random_walk_1000_states import RandomWalk1000
+from environment.random_walk_1000_states import RandomWalk1000
 import numpy as np
 import collections
 import matplotlib.pyplot as plt

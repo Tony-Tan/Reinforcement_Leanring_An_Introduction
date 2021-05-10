@@ -1,8 +1,9 @@
-numpy
-matplotlib
-seaborn
-pandas
-gym
+numpy~=1.18.5
+matplotlib~=3.2.1
+seaborn~=0.11.1
+pandas~=1.2.4
+gym~=0.18.0
 torch
 torchvision
 tensorboard-pytorch
+rich~=10.1.0

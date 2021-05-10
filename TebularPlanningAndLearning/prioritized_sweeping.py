@@ -1,4 +1,4 @@
-from Environment.gride_world import GridWorld
+from environment.gride_world import GridWorld
 import numpy as np
 import collections
 import matplotlib.pyplot as plt

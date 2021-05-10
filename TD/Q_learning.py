@@ -1,11 +1,13 @@
-from random_walk import RandomWalk
+from environment.random_walk import RandomWalk
 import numpy as np
 import collections
 import matplotlib.pyplot as plt
 
+
 def constant_factory(n):
     probability_list = np.ones(n)
     return lambda: probability_list/np.sum(probability_list)
+
 
 class Agent:
     def __init__(self, env, epsilon=0.4, initial_value=0):
@@ -26,7 +28,7 @@ class Agent:
                 action = self.select_action(state)
                 new_state, reward, is_done, _ = self.env.step(action)
                 # next state-action return
-                #if not is_done:
+                # if not is_done:
                 q_state_next = []
                 for action_iter in range(self.env.action_space.n):
                     q_state_next.append(self.value_state_action[(new_state, action_iter)])
@@ -41,7 +43,7 @@ class Agent:
                         q_state_current + alpha * (reward - q_state_current)
                 """
                 if not only_evaluation:
-                    #control epsilon-greedy
+                    # control epsilon-greedy
                     value_of_action_list = []
                     for action_iter in range(self.env.action_space.n):
                         value_of_action_list.append(self.value_state_action[(state, action_iter)])

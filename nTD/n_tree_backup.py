@@ -1,5 +1,5 @@
 import collections
-from Environment.random_walk_19_states import RandomWalk
+from environment.random_walk_19_states import RandomWalk
 import numpy as np
 import matplotlib.pyplot as plt
 
