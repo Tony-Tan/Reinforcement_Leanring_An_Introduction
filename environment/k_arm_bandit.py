@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from environment.basic_classes import Space
 
@@ -20,14 +22,14 @@ class KArmedBandit:
     def __init__(self, k_, k_value_mean_, k_value_deviation_):
         self._k_value_mean_init = k_value_mean_
         self._k_value_deviation_init = k_value_deviation_
-        self._k_value_mean = k_value_mean_
-        self._k_value_deviation = k_value_deviation_
+        self._k_value_mean = copy.deepcopy(self._k_value_mean_init)
+        self._k_value_deviation = copy.deepcopy(self._k_value_deviation_init)
         self._k = k_
         self.action_space = Space([i for i in range(k_)])
 
     def reset(self):
-        self._k_value_deviation = self._k_value_deviation_init
-        self._k_value_mean = self._k_value_mean_init
+        self._k_value_mean = copy.deepcopy(self._k_value_mean_init)
+        self._k_value_deviation = copy.deepcopy(self._k_value_deviation_init)
         return np.zeros(self._k)
 
     def step(self, action_):

@@ -16,17 +16,17 @@ from epsilon_greedy import Agent
 
 
 if __name__ == '__main__':
-    env = KArmedBanditRW(10, np.random.normal(.0, 1.0, 10), np.ones(10), 0, 0.01)
-    agent_0 = Agent(env, 0, 0, 0.1)
+    env = KArmedBanditRW(10, np.random.normal(.0, 1.0, 10), np.ones(10))
+    agent_0 = Agent(env, 0.1, 0, 0.1)
     plt.figure(1)
-    average_reward_0, optimal_action_percentage_0 = agent_0.run(10000, 100)
-    plt.plot(average_reward_0, linewidth=1, alpha=0.7, c='b',
+    average_reward_0, optimal_action_percentage_0 = agent_0.run(10000, 2000)
+    plt.plot(average_reward_0, linewidth=1, alpha=0.7, c='g',
              label='0.1-greedy $\\alpha=0.1$ initial_value=0')
     plt.xlabel('Steps')
     plt.ylabel('Reward')
     plt.legend()
     plt.figure(2)
-    plt.plot(optimal_action_percentage_0, linewidth=1, alpha=0.7, c='b',
+    plt.plot(optimal_action_percentage_0, linewidth=1, alpha=0.7, c='g',
              label='0.1-greedy $\\alpha=0.1$ initial_value=0')
     plt.xlabel('Steps')
     plt.ylabel('% of optimal action')
