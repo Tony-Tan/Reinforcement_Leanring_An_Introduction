@@ -19,18 +19,15 @@ from environment.basic_classes import Space
 
 
 class KArmedBandit:
-    def __init__(self, k_, k_value_mean_, k_value_deviation_):
-        self._k_value_mean_init = k_value_mean_
-        self._k_value_deviation_init = k_value_deviation_
-        self._k_value_mean = copy.deepcopy(self._k_value_mean_init)
-        self._k_value_deviation = copy.deepcopy(self._k_value_deviation_init)
-        self._k = k_
-        self.action_space = Space([i for i in range(k_)])
+    def __init__(self, value_mean_array_, value_deviation_array_):
+        self._k_value_mean = value_mean_array_
+        self._k_value_deviation = value_deviation_array_
+        self._k = len(value_mean_array_)
+        self.action_space = Space([i for i in range(self._k)])
+        self.optimal_action = np.flatnonzero(self._k_value_mean == self._k_value_mean.max())
 
     def reset(self):
-        self._k_value_mean = copy.deepcopy(self._k_value_mean_init)
-        self._k_value_deviation = copy.deepcopy(self._k_value_deviation_init)
-        return np.zeros(self._k)
+        pass
 
     def step(self, action_):
         current_state = []
@@ -42,17 +39,12 @@ class KArmedBandit:
         else:
             raise ValueError("action must be a number less than k")
 
-    def optimal_action(self):
-        return np.flatnonzero(self._k_value_mean == self._k_value_mean.max())
-
 
 class KArmedBanditRW(KArmedBandit):
-    def __init__(self, k_, k_value_mean_, k_value_deviation_, random_walk_mean_=0, random_walk_deviation_=0.01):
-        super(KArmedBanditRW, self).__init__(k_, k_value_mean_, k_value_deviation_)
+    def __init__(self, value_mean_array_, value_deviation_array_, random_walk_mean_=0, random_walk_deviation_=0.01):
+        super(KArmedBanditRW, self).__init__(value_mean_array_, value_deviation_array_)
         self._random_walk_mean = random_walk_mean_
         self._random_walk_deviation = random_walk_deviation_
-        self._k = k_
-        self._step_counter = 0
 
     def step(self, action_):
         delta = np.random.normal(self._random_walk_mean, self._random_walk_deviation, self._k)
@@ -61,5 +53,5 @@ class KArmedBanditRW(KArmedBandit):
 
 
 if __name__ == '__main__':
-    env = KArmedBandit(10, np.random.normal(.0, 1.0, 10), np.ones(10))
-    env_rw = KArmedBanditRW(10, np.random.normal(.0, 1.0, 10), np.ones(10))
+    env = KArmedBandit(np.random.normal(.0, 1.0, 10), np.ones(10))
+    env_rw = KArmedBanditRW(np.random.normal(.0, 1.0, 10), np.ones(10))
