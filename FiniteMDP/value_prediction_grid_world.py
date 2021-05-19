@@ -1,8 +1,6 @@
 import copy
-
 import numpy as np
-
-from Environment.naive_grid_world import GridWorld
+from environment.naive_grid_world import GridWorld
 
 
 class Agent:
