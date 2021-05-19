@@ -1,8 +1,8 @@
-import numpy as np
-import random
-from environment.k_arm_bandit import KArmedBandit
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.k_arm_bandit import KArmedBandit
 from rich.progress import track
+
 from basic_moduls.epsilon_greedy import EpsilonGreedy
 
 
@@ -73,22 +73,22 @@ def experiment(total_step_num_=1000, repeat_experiment_n_times_=2000):
 
     # draw results
     plt.figure(1)
-    plt.plot(average_reward_0/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
+    plt.plot(average_reward_0 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
              label='0-greedy initial_value=0')
-    plt.plot(average_reward_0_1/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
+    plt.plot(average_reward_0_1 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
              label='0.1-greedy initial_value=0')
-    plt.plot(average_reward_0_01/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='r',
+    plt.plot(average_reward_0_01 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='r',
              label='0.01-greedy initial_value=0')
     plt.xlabel('steps')
     plt.ylabel('average reward')
     plt.legend()
     plt.savefig('./Figure/epsilon-greedy_F2.2.0.png')
     plt.figure(2)
-    plt.plot(optimal_action_percentage_0/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
+    plt.plot(optimal_action_percentage_0 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
              label='0-greedy initial_value=0')
-    plt.plot(optimal_action_percentage_0_1/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
+    plt.plot(optimal_action_percentage_0_1 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
              label='0.1-greedy initial_value=0')
-    plt.plot(optimal_action_percentage_0_01/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='r',
+    plt.plot(optimal_action_percentage_0_01 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='r',
              label='0.01-greedy initial_value=0')
     plt.xlabel('steps')
     plt.ylabel('% of optimal action')

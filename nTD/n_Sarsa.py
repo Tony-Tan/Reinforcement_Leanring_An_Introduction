@@ -1,12 +1,13 @@
 import collections
-from environment.random_walk_19_states import RandomWalk
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.random_walk_19_states import RandomWalk
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
@@ -55,7 +56,7 @@ class Agent:
                         action = self.select_action(current_stat)
                         new_state, reward, is_done, _ = self.env.step(action)
                         n_queue.append([current_stat, action, reward])
-                        g_value += self.value_of_state_action[(current_stat, action)]*gamma_temp
+                        g_value += self.value_of_state_action[(current_stat, action)] * gamma_temp
                         self.value_of_state_action[(state_updated, action_updated)] += \
                             (alpha * (g_value - self.value_of_state_action[(state_updated, action_updated)]))
                     else:
@@ -89,10 +90,9 @@ if __name__ == '__main__':
     estimating_value = np.zeros(19)
     for i in range(env.state_space.n):
         for j in range(env.action_space.n):
-            estimating_value[i] += agent.value_of_state_action[(i, j)]*agent.policies[i][j]
+            estimating_value[i] += agent.value_of_state_action[(i, j)] * agent.policies[i][j]
     print(estimating_value)
     plt.figure(0)
     plt.plot(estimating_value[1:-1])
     plt.plot(ground_truth[1:-1])
     plt.show()
-

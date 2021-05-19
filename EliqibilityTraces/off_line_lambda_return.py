@@ -1,8 +1,8 @@
 import collections
+
+import matplotlib.pyplot as plt
 import numpy as np
 from environment.random_walk_19_states import RandomWalk
-import matplotlib.pyplot as plt
-import random
 
 
 def constant_factory(n):
@@ -35,7 +35,7 @@ class Agent:
                 current_action = self.select_action(current_state)
                 next_state, reward, is_done, _ = self.env.step(current_action)
                 episode_record.append([current_state, current_action, reward])
-            self.T = int(self.t*len(episode_record))
+            self.T = int(self.t * len(episode_record))
             while len(episode_record) != 0:
                 current_state, current_action, reward = episode_record.popleft()
                 g_n = collections.deque()

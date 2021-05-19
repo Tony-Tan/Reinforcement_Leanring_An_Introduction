@@ -1,8 +1,7 @@
 import collections
-from environment.access_control_queuing_task import QueuingTask
+
 import numpy as np
-import matplotlib.pyplot as plt
-import math
+from environment.access_control_queuing_task import QueuingTask
 
 
 def constant_factory(n):
@@ -59,8 +58,8 @@ class Agent:
                 for rec_i in n_queue:
                     delta_r += (rec_i[2] - self.average_reward)
                 state_2_update, action_2_update, reward, _ = n_queue.popleft()
-                delta = delta_r + self.value_of_state_action([state_tao_n, action_tao_n])\
-                    - self.value_of_state_action([state_2_update, action_2_update])
+                delta = delta_r + self.value_of_state_action([state_tao_n, action_tao_n]) \
+                        - self.value_of_state_action([state_2_update, action_2_update])
                 self.average_reward += beta * delta
                 self.value_of_state_action.update_weight(delta, alpha, (state_2_update, action_2_update))
                 # update policy

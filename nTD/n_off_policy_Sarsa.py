@@ -1,12 +1,13 @@
 import collections
-from environment.random_walk_19_states import RandomWalk
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.random_walk_19_states import RandomWalk
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
@@ -41,7 +42,8 @@ class Agent:
                         for iter_n in n_queue:
                             # iter_n[2] is the reward in the queue
                             g_value += gamma_temp * iter_n[2]
-                            p_value *= self.policies[iter_n[0]][iter_n[1]] / self.behaviors_policies[iter_n[0]][iter_n[1]]
+                            p_value *= self.policies[iter_n[0]][iter_n[1]] / self.behaviors_policies[iter_n[0]][
+                                iter_n[1]]
                             gamma_temp *= gamma
                         self.value_of_state_action[(state_updated, action_updated)] += \
                             (alpha * p_value * (g_value - self.value_of_state_action[(state_updated, action_updated)]))
@@ -76,7 +78,7 @@ class Agent:
                         action = self.select_action(current_stat)
                         new_state, reward, is_done, _ = self.env.step(action)
                         n_queue.append([current_stat, action, reward])
-                        g_value += self.value_of_state_action[(current_stat, action)]*gamma_temp
+                        g_value += self.value_of_state_action[(current_stat, action)] * gamma_temp
                         self.value_of_state_action[(state_updated, action_updated)] += \
                             (alpha * p_value * (g_value - self.value_of_state_action[(state_updated, action_updated)]))
                         # update policy
@@ -103,15 +105,14 @@ if __name__ == '__main__':
     ground_truth = []
     for i in range(0, 19):
         ground_truth.append(-1 + i / 9)
-    agent = Agent(env,1)
+    agent = Agent(env, 1)
     agent.estimating(10000)
     estimating_value = np.zeros(19)
     for i in range(env.state_space.n):
         for j in range(env.action_space.n):
-            estimating_value[i] = agent.value_of_state_action[(i,j)]
+            estimating_value[i] = agent.value_of_state_action[(i, j)]
     print(estimating_value)
     plt.figure(0)
     plt.plot(estimating_value[1:-1])
     plt.plot(ground_truth[1:-1])
     plt.show()
-

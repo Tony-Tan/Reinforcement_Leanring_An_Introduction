@@ -1,8 +1,8 @@
 import collections
-from environment.mountain_car import MountainCar
-import numpy as np
+
 import matplotlib.pyplot as plt
-import math
+import numpy as np
+from environment.mountain_car import MountainCar
 
 
 def constant_factory(n):
@@ -27,7 +27,8 @@ class Agent:
         self.env = environment_
         self.tiling_block_num = 8
         self.tiling_num = 8
-        self.value_of_state_action = LinearFunction(self.tiling_num * self.tiling_block_num * self.tiling_block_num*10)
+        self.value_of_state_action = LinearFunction(
+            self.tiling_num * self.tiling_block_num * self.tiling_block_num * 10)
         # parameters for feature extraction
         width = self.env.position_bound[1] - self.env.position_bound[0]
         height = self.env.velocity_bound[1] - self.env.velocity_bound[0]
@@ -93,7 +94,7 @@ class Agent:
                     g = 0.
                     gamma_ = 1
                     for iter_q in n_queue:
-                        g += gamma_*iter_q[1]
+                        g += gamma_ * iter_q[1]
                         gamma_ *= gamma
                     while len(n_queue) != 0:
                         state_2_update, r, action_2_update = n_queue.popleft()
@@ -140,16 +141,16 @@ if __name__ == '__main__':
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
+        step_num_list += agent.running(episode_num, n, alpha=0.01 / 8.)
+    plt.plot(step_num_list / float(repeat_times), c='g', alpha=0.7, label='n=1 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     n = 8
     step_num_list = np.zeros(episode_num)
     for _ in range(repeat_times):
         print('2 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(episode_num, n, alpha=0.01/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
+        step_num_list += agent.running(episode_num, n, alpha=0.01 / 8.)
+    plt.plot(step_num_list / float(repeat_times), c='r', alpha=0.7, label='n=8 and $\\alpha=0.1/8$ and $\\gamma=0.9$')
 
     plt.legend()
     plt.show()

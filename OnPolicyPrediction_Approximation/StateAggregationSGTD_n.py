@@ -1,13 +1,13 @@
-from environment.random_walk_1000_states import RandomWalk1000
-import numpy as np
 import collections
+
 import matplotlib.pyplot as plt
-import random
+import numpy as np
+from environment.random_walk_1000_states import RandomWalk1000
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class StateAggregation:
@@ -15,8 +15,8 @@ class StateAggregation:
         self.min_state = min_state
         self.max_state = max_state
         self.aggregation_size = aggregation_size
-        self.aggregation_num = int((max_state-min_state)/aggregation_size) + 1
-        if (max_state-min_state) % aggregation_size == 0:
+        self.aggregation_num = int((max_state - min_state) / aggregation_size) + 1
+        if (max_state - min_state) % aggregation_size == 0:
             self.aggregation_num -= 1
         self.weight = np.zeros(self.aggregation_num)
 
@@ -26,7 +26,7 @@ class StateAggregation:
 
     def derivation(self, x):
         derivative = np.zeros(self.aggregation_num)
-        current_position = int(x/self.aggregation_size)
+        current_position = int(x / self.aggregation_size)
         derivative[current_position] = 1.0
         return derivative
 
@@ -70,7 +70,8 @@ class Agent:
                                                                         gamma * self.value_state(new_state) -
                                                                         self.value_state(state_updated)) * delta_value
                         else:
-                            self.value_state.weight += learning_rate * (reward - self.value_state(state_updated)) * delta_value
+                            self.value_state.weight += learning_rate * (
+                                        reward - self.value_state(state_updated)) * delta_value
                     break
                 else:
                     if len(n_queue) == self.n + 1:
@@ -92,7 +93,8 @@ class Agent:
                                                                         gamma * self.value_state(new_state) -
                                                                         self.value_state(state_updated)) * delta_value
                         else:
-                            self.value_state.weight += learning_rate * (reward - self.value_state(state_updated)) * delta_value
+                            self.value_state.weight += learning_rate * (
+                                        reward - self.value_state(state_updated)) * delta_value
                     else:
                         action_next = self.select_action(new_state)
                         new_state, reward, is_done, _ = env.step(action_next)
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     env = RandomWalk1000()
     agent = Agent(env, 0, 0, 1000, 100)
     mu = agent.SGTD_n_app(10000, 1e-2, gamma=0.99)
-    mu = mu/np.sum(mu)
+    mu = mu / np.sum(mu)
     x = np.arange(1, 999, 1.)
     y = np.arange(1, 999, 1.)
     # for i in range(1, x.size, 2):

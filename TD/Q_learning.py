@@ -1,12 +1,13 @@
-from environment.random_walk import RandomWalk
-import numpy as np
 import collections
+
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.random_walk import RandomWalk
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
@@ -52,9 +53,9 @@ class Agent:
                         np.random.choice(np.flatnonzero(value_of_action_list == value_of_action_list.max()))
                     for action_iter in range(self.env.action_space.n):
                         if action_iter == optimal_action:
-                            self.policies[state][action_iter] = 1 - epsilon + epsilon/self.env.action_space.n
+                            self.policies[state][action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
                         else:
-                            self.policies[state][action_iter] = epsilon/self.env.action_space.n
+                            self.policies[state][action_iter] = epsilon / self.env.action_space.n
                 if is_done:
                     break
                 state = new_state
@@ -65,12 +66,12 @@ if __name__ == '__main__':
     agent = Agent(env, initial_value=0.0)
     agent.q_control(10000, alpha=0.1, gamma=0.6, only_evaluation=False)
     value_list = []
-    ground_truth = [1/6, 2/6, 3/6, 4/6, 5/6]
+    ground_truth = [1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6]
     for state_i in range(env.state_space.n):
         value = 0
         for action_i in range(env.action_space.n):
             value += \
-                agent.value_state_action[(state_i, action_i)] *\
+                agent.value_state_action[(state_i, action_i)] * \
                 agent.policies[state_i][action_i]
         value_list.append(value)
         print('value of state %d is %f' % (env.state_space[state_i], value))

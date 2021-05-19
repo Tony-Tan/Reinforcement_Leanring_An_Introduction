@@ -1,17 +1,18 @@
-from environment.gride_world import GridWorld
-import numpy as np
 import collections
-import matplotlib.pyplot as plt
 import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+from environment.gride_world import GridWorld
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
-    def __init__(self, env, n=5, epsilon=0.4, initial_value=0.0, theta = 0.1):
+    def __init__(self, env, n=5, epsilon=0.4, initial_value=0.0, theta=0.1):
         self.env = env
         self.n = n
         self.epsilon = epsilon

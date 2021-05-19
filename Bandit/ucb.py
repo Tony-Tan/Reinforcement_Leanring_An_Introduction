@@ -1,10 +1,10 @@
-import numpy as np
-import random
-from environment.k_arm_bandit import KArmedBandit
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.k_arm_bandit import KArmedBandit
 from rich.progress import track
-from basic_moduls.ucb import UCB
+
 from Bandit.epsilon_greedy import Agent as EG_Agent
+from basic_moduls.ucb import UCB
 
 
 class Agent():
@@ -30,7 +30,7 @@ class Agent():
         # keep it for a good habit
         state = self._env.reset()
         for step_i in range(total_step_num_):
-            action = self.select_action(action_value_estimate, step_i+1, action_value_estimated_times)
+            action = self.select_action(action_value_estimate, step_i + 1, action_value_estimated_times)
             state, reward, is_done, _ = self._env.step(action)
             action_value_estimated_times[action] += 1
             # update
@@ -47,7 +47,7 @@ class Agent():
         return reward_array, optimal_action_array
 
 
-def experiment(total_step_num_,repeat_experiment_n_times_):
+def experiment(total_step_num_, repeat_experiment_n_times_):
     average_reward_ubc = np.zeros(total_step_num_)
     optimal_action_percentage_ubc = np.zeros(total_step_num_)
     average_reward_eg = np.zeros(total_step_num_)
@@ -65,18 +65,18 @@ def experiment(total_step_num_,repeat_experiment_n_times_):
         optimal_action_percentage_eg += optimal_action_eg
 
     plt.figure(1, figsize=(12, 10))
-    plt.plot(average_reward_ubc/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
+    plt.plot(average_reward_ubc / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
              label='UCB initial_value=0')
-    plt.plot(average_reward_eg/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
+    plt.plot(average_reward_eg / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
              label='0.1-greedy initial_value=0')
     plt.xlabel('time')
     plt.ylabel('reward')
     plt.legend()
     plt.savefig('./Figure/UCB_reward_F2.4.png')
     plt.figure(2, figsize=(12, 10))
-    plt.plot(optimal_action_percentage_ubc/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
+    plt.plot(optimal_action_percentage_ubc / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',
              label='UCB initial_value=0')
-    plt.plot(optimal_action_percentage_eg/repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
+    plt.plot(optimal_action_percentage_eg / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='b',
              label='0.1-greedy initial_value=0')
     plt.xlabel('time')
     plt.ylabel('% of optimal action')
@@ -88,4 +88,3 @@ def experiment(total_step_num_,repeat_experiment_n_times_):
 # for figure 2.2
 if __name__ == '__main__':
     experiment(1000, 2000)
-

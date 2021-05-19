@@ -2,9 +2,9 @@
 # expected rewards were selected according to a normal distribution with a mean of +4 instead of zero (and with unit
 # variance as before).
 
+import matplotlib.pyplot as plt
 import numpy as np
 from environment.k_arm_bandit import KArmedBandit
-import matplotlib.pyplot as plt
 from rich.progress import track
 
 
@@ -15,7 +15,7 @@ class Agent:
         self._k = env_.action_space.n
         self._optimal_action = env_.optimal_action
         self._preference = np.zeros(self._k)
-        self._policy = np.ones(self._k)/self._k
+        self._policy = np.ones(self._k) / self._k
 
     def policy_update(self):
         total_preference = 0

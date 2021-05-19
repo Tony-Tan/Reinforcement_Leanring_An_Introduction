@@ -1,11 +1,11 @@
-from environment.corridor_gridworld import ShortCorridor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.corridor_gridworld import ShortCorridor
 
 
 class LogisticalFunc:
     def __call__(self, w):
-        return np.exp(w) / (1. + np.exp(w))*0.9 + 0.05
+        return np.exp(w) / (1. + np.exp(w)) * 0.9 + 0.05
 
     def derivative(self, w):
         return np.exp(w) / ((1. + np.exp(w)) ** 2) * 0.9

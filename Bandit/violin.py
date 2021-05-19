@@ -1,7 +1,7 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 import pandas as pd
+import seaborn as sns
 
 
 def reward_action_pairs_generator(data_file_path="test.csv", k=10, size_of_sample_per_arm=100000):

@@ -1,14 +1,12 @@
-import numpy as np
 import matplotlib.pyplot as plt
-
-
+import numpy as np
 
 
 class RLEnvironment():
     def __init__(self, n):
-        self.gridword_size = n # n x n grids
+        self.gridword_size = n  # n x n grids
         self.dynamic = 1
-        self.termination=[[0,0],[n-1,n-1],[int(n/2),int(n/2)]]
+        self.termination = [[0, 0], [n - 1, n - 1], [int(n / 2), int(n / 2)]]
 
     def get_reward(self, state):
         return -1
@@ -16,6 +14,7 @@ class RLEnvironment():
     def is_termination(self, state):
         if state in self.termination:
             return True
+
 
 class Agent():
     def __init__(self, environment):
@@ -25,12 +24,12 @@ class Agent():
         self.policy = np.ones([self.n, self.n, self.degree_of_freedom])
         self.value_function = np.zeros([self.n, self.n])
         # action: left, up, right, down
-        self.action = np.array([[0,-1],[-1,0],[0,1],[1,0]])
+        self.action = np.array([[0, -1], [-1, 0], [0, 1], [1, 0]])
         # inital policy
         n = self.n
         for i in range(n):
             for j in range(n):
-                if self.state.is_termination([i,j]):
+                if self.state.is_termination([i, j]):
                     self.policy[i][j] = 0
                 else:
                     freedom = 0
@@ -73,7 +72,7 @@ class Agent():
     def print_policy_and_value(self):
         n = self.n
         size_of_policy = len(self.policy[0][0])
-        plt.figure(figsize=(8,8))
+        plt.figure(figsize=(8, 8))
         for i in range(n):
             for j in range(n):
                 if self.state.is_termination([i, j]):
@@ -83,12 +82,14 @@ class Agent():
                 current_policy = self.policy[i][j]
                 for a_ in range(size_of_policy):
                     if current_policy[a_] != 0:
-                        plt.arrow((j+1)/(n+1), 1-(i+1)/(n+1), self.action[a_][1]/(4*(n+1)), -self.action[a_][0]/(4*(n+1)), head_width=0.01, head_length=0.01, fc='k', ec='k')
-                        plt.text((j+1.05)/(n+1), 1-(i+0.95)/(n+1),str(self.value_function[i][j].round(2)),size='medium')
+                        plt.arrow((j + 1) / (n + 1), 1 - (i + 1) / (n + 1), self.action[a_][1] / (4 * (n + 1)),
+                                  -self.action[a_][0] / (4 * (n + 1)), head_width=0.01, head_length=0.01, fc='k',
+                                  ec='k')
+                        plt.text((j + 1.05) / (n + 1), 1 - (i + 0.95) / (n + 1),
+                                 str(self.value_function[i][j].round(2)), size='medium')
         plt.show()
 
-
-    def policy_evluation(self, gamma, threshold_of_termination, repeat_times= 10000, method='in_place'):
+    def policy_evluation(self, gamma, threshold_of_termination, repeat_times=10000, method='in_place'):
         for epoch in range(repeat_times):
             print(self.value_function)
             self.print_policy_and_value()
@@ -99,7 +100,7 @@ class Agent():
             # loop of all actions
             for i in range(self.n):
                 for j in range(self.n):
-                    if self.state.is_termination([i,j]):
+                    if self.state.is_termination([i, j]):
                         continue
                     value_old = self.value_function[i][j]
                     temple_value = 0
@@ -130,16 +131,15 @@ class Agent():
         return value_delta
 
     def policy_iteration(self, gamma, threshold_of_termination, method='in_place'):
-        while(True):
+        while (True):
             value_delta = self.policy_evluation(gamma, threshold_of_termination, repeat_times=1, method=method)
             if value_delta < threshold_of_termination:
                 return value_delta
             self.update_policy_greedy()
 
 
-
 if __name__ == '__main__':
     env = RLEnvironment(10)
     agt = Agent(env)
-    #agt.policy_evluation(1, 0.0001, repeat_times=100, method='not in place')
-    agt.policy_iteration(0.9,0.0001,method='not in place')
+    # agt.policy_evluation(1, 0.0001, repeat_times=100, method='not in place')
+    agt.policy_iteration(0.9, 0.0001, method='not in place')

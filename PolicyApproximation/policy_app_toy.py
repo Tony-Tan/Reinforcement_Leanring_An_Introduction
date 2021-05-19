@@ -1,6 +1,6 @@
-from environment.corridor_gridworld import ShortCorridor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.corridor_gridworld import ShortCorridor
 
 
 class Agent:
@@ -18,7 +18,7 @@ class Agent:
                 reward_cumulate += reward
                 if is_done:
                     break
-        return float(reward_cumulate/number_of_episodes)
+        return float(reward_cumulate / number_of_episodes)
 
 
 if __name__ == '__main__':
@@ -27,8 +27,8 @@ if __name__ == '__main__':
     steps = []
     x_axis = []
     for i in range(150, 350):
-        print('probability: ', i/500.)
-        x_axis.append(i/500)
-        steps.append(agent.play(500, i/500.))
+        print('probability: ', i / 500.)
+        x_axis.append(i / 500)
+        steps.append(agent.play(500, i / 500.))
     plt.plot(x_axis, steps, alpha=0.7)
     plt.show()

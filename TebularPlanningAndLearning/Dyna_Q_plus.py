@@ -1,13 +1,14 @@
-from environment.gride_world import GridWorld
-import numpy as np
 import collections
-import matplotlib.pyplot as plt
 import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+from environment.gride_world import GridWorld
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
@@ -108,7 +109,7 @@ if __name__ == '__main__':
     # plt.legend()
     # plt.show()
 
-    env = GridWorld(6, [25, 26, 27, 28,29], start_position=31, end_position_list=[5])
+    env = GridWorld(6, [25, 26, 27, 28, 29], start_position=31, end_position_list=[5])
     agent = Agent(env, n=10, kappa=0)
     dq_step_rewards_list = []
     steps = 0

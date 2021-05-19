@@ -1,4 +1,5 @@
 import numpy as np
+
 SMALL_FLOUT_NUM = 1e-10
 
 
