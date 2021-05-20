@@ -1,3 +1,5 @@
+# Example 3.8: Solving the Gridworld
+
 import copy
 import numpy as np
 from environment.naive_grid_world import GridWorld
@@ -15,15 +17,16 @@ class Agent:
         while True:
             last_step_state_value = copy.deepcopy(self.state_values_func)
             for state_i in self.__env.state_space:
-                sum_ = 0.0
+                sum_ = np.zeros(self.__env.action_space.n)
                 for action_i in self.__env.action_space:
                     self.__env.set_current_state(state_i)
                     next_state, reward, _, _ = self.__env.step(action_i)
-                    sum_ += self.__policy[action_i] * (reward + self.__gamma * self.state_values_func[next_state])
-                self.state_values_func[state_i] = sum_
+                    sum_[action_i] = reward + self.__gamma * self.state_values_func[next_state]
+                self.state_values_func[state_i] = np.max(sum_)
             # condition to stop the iteration
-            # delta is small enough
-            if np.min(np.abs(last_step_state_value - self.state_values_func)) < 0.00001 and repeat_i > 10:
+            # the minimal element of delta(the change of the value function) is small enough: like less than 0.00001
+            # and repeat more than 100 times(
+            if np.min(np.abs(last_step_state_value - self.state_values_func)) < 0.00001 and repeat_i > 100:
                 print('Prediction has finished! in %d loops'%repeat_i)
                 return True
             repeat_i += 1
