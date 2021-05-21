@@ -4,7 +4,7 @@ import numpy as np
 from environment.basic_classes import Space
 
 
-# class Bandit:
+# class bandit:
 #     def __init__(self, value_mean=0.0, value_var=1.0):
 #         """
 #         bandit, reward is produced by a normal distribution with mean and variance;

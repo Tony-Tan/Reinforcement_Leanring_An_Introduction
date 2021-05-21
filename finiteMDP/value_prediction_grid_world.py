@@ -1,3 +1,5 @@
+# the solution in the book was calculated by solving linear equations
+# the methods we using here is Dynamic Programming on page 75
 import copy
 import numpy as np
 from environment.naive_grid_world import GridWorld

@@ -3,7 +3,7 @@ import numpy as np
 from environment.k_arm_bandit import KArmedBandit
 from rich.progress import track
 
-from Bandit.epsilon_greedy import Agent as EG_Agent
+from bandit.epsilon_greedy import Agent as EG_Agent
 from basic_moduls.ucb import UCB
 
 

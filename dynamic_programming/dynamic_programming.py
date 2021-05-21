@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class RLEnvironment():
+class RLEnvironment:
     def __init__(self, n):
         self.gridword_size = n  # n x n grids
         self.dynamic = 1
@@ -16,7 +16,7 @@ class RLEnvironment():
             return True
 
 
-class Agent():
+class Agent:
     def __init__(self, environment):
         self.degree_of_freedom = 4
         self.state = environment
@@ -131,7 +131,7 @@ class Agent():
         return value_delta
 
     def policy_iteration(self, gamma, threshold_of_termination, method='in_place'):
-        while (True):
+        while True:
             value_delta = self.policy_evluation(gamma, threshold_of_termination, repeat_times=1, method=method)
             if value_delta < threshold_of_termination:
                 return value_delta
