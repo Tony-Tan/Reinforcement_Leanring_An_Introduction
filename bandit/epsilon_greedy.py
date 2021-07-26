@@ -1,3 +1,5 @@
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 from environment.k_arm_bandit import KArmedBandit
@@ -54,6 +56,7 @@ def experiment(total_step_num_=1000, repeat_experiment_n_times_=2000):
     optimal_action_percentage_0 = np.zeros(total_step_num_)
     optimal_action_percentage_0_1 = np.zeros(total_step_num_)
     optimal_action_percentage_0_01 = np.zeros(total_step_num_)
+    start_time = time.time()
     for _ in track(range(repeat_experiment_n_times_), description="Repeating Experiment..."):
         env = KArmedBandit(np.random.normal(.0, 1.0, 10), np.ones(10))
         agent_0 = Agent(env, 0, 0, '1/n')
@@ -70,7 +73,8 @@ def experiment(total_step_num_=1000, repeat_experiment_n_times_=2000):
         reward_0_01, optimal_action_0_01 = agent_0_01.run(total_step_num_)
         average_reward_0_01 += reward_0_01
         optimal_action_percentage_0_01 += optimal_action_0_01
-
+    end_time = time.time()
+    print('total time: ' + str(end_time - start_time))
     # draw results
     plt.figure(1)
     plt.plot(average_reward_0 / repeat_experiment_n_times_, linewidth=1, alpha=0.7, c='g',

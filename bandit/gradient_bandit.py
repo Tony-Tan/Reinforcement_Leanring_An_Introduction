@@ -92,7 +92,7 @@ def experiment(total_step_num_=1000, repeat_experiment_n_times_=1000):
     plt.xlabel('Steps')
     plt.ylabel('% of optimal action')
     plt.legend()
-    plt.savefig('./Figure/epsilon-greedy_F2.2.1.png')
+    # plt.savefig('./Figure/epsilon-greedy_F2.2.1.png')
     plt.show()
 
 
