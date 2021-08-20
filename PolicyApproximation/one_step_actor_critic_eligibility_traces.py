@@ -1,6 +1,6 @@
-from Environment.corridor_gridworld import ShortCorridor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.corridor_gridworld import ShortCorridor
 
 
 class LogisticalFunc:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-3,\\alpha_w=1e-4$')
 
         agent = Agent(env)
-        step = agent.play(episode_len, 1e-2, 1e-4,  1e-3, 1e-3, 0.9)
+        step = agent.play(episode_len, 1e-2, 1e-4, 1e-3, 1e-3, 0.9)
         # steps += step
         plt.plot(step, alpha=0.7, label='$\\alpha_{\\theta}=1e-2,\\alpha_w=1e-4$')
 

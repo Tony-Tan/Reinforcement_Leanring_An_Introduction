@@ -1,8 +1,9 @@
 import collections
-import numpy as np
-from Environment.random_walk_19_states import RandomWalk
-import matplotlib.pyplot as plt
 import random
+
+import matplotlib.pyplot as plt
+import numpy as np
+from environment.random_walk_19_states import RandomWalk
 
 
 def constant_factory(n):

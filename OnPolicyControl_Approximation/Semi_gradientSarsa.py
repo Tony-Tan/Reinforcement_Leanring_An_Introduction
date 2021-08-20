@@ -1,8 +1,6 @@
-import collections
-from Environment.mountain_car import MountainCar
-import numpy as np
 import matplotlib.pyplot as plt
-import math
+import numpy as np
+from environment.mountain_car import MountainCar
 
 
 def constant_factory(n):
@@ -13,7 +11,7 @@ def constant_factory(n):
 class LinearFunction:
     def __init__(self, n):
         self.n = n
-        self.weight = np.zeros(n+1)
+        self.weight = np.zeros(n + 1)
 
     def __call__(self, x_1, x_2):
         sum = 0
@@ -52,7 +50,8 @@ class Agent:
             y_ = y - i * self.height_step
             x_position = int(x_ / self.block_width + 1)
             y_position = int(y_ / self.block_height + 1)
-            feature.append(i*self.tiling_block_num * self.tiling_block_num + y_position * self.tiling_block_num + x_position)
+            feature.append(
+                i * self.tiling_block_num * self.tiling_block_num + y_position * self.tiling_block_num + x_position)
         return feature
 
     def select_action(self, state_feature, epsilon=0.3):
@@ -108,22 +107,22 @@ if __name__ == '__main__':
     for _ in range(repeat_times):
         print('1 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(100, alpha=0.1/8.)
-    plt.plot(step_num_list/float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.1/8')
+        step_num_list += agent.running(100, alpha=0.1 / 8.)
+    plt.plot(step_num_list / float(repeat_times), c='g', alpha=0.7, label='$\\alpha$=0.1/8')
 
     step_num_list = np.zeros(100)
     for _ in range(repeat_times):
         print('2 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(100, alpha=0.2/8.)
-    plt.plot(step_num_list/float(repeat_times), c='b', alpha=0.7, label='$\\alpha$=0.2/8')
+        step_num_list += agent.running(100, alpha=0.2 / 8.)
+    plt.plot(step_num_list / float(repeat_times), c='b', alpha=0.7, label='$\\alpha$=0.2/8')
 
     step_num_list = np.zeros(100)
     for _ in range(repeat_times):
         print('3 round ' + str(_))
         agent = Agent(env)
-        step_num_list += agent.running(100, alpha=0.5/8.)
-    plt.plot(step_num_list/float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.5/8')
+        step_num_list += agent.running(100, alpha=0.5 / 8.)
+    plt.plot(step_num_list / float(repeat_times), c='r', alpha=0.7, label='$\\alpha$=0.5/8')
 
     plt.legend()
     plt.show()

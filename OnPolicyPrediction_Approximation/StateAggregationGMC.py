@@ -1,12 +1,13 @@
-from Environment.random_walk_1000_states import RandomWalk1000
-import numpy as np
 import collections
+
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.random_walk_1000_states import RandomWalk1000
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class StateAggregation:
@@ -14,8 +15,8 @@ class StateAggregation:
         self.min_state = min_state
         self.max_state = max_state
         self.aggregation_size = aggregation_size
-        self.aggregation_num = int((max_state-min_state)/aggregation_size) + 1
-        if (max_state-min_state) % aggregation_size == 0:
+        self.aggregation_num = int((max_state - min_state) / aggregation_size) + 1
+        if (max_state - min_state) % aggregation_size == 0:
             self.aggregation_num -= 1
         self.weight = np.zeros(self.aggregation_num)
 
@@ -25,7 +26,7 @@ class StateAggregation:
 
     def derivation(self, x):
         derivative = np.zeros(self.aggregation_num)
-        current_position = int(x/self.aggregation_size)
+        current_position = int(x / self.aggregation_size)
         derivative[current_position] = 1.0
         return derivative
 
@@ -58,8 +59,8 @@ class Agent:
                     break
             # update g base on g = gamma * g + R_{t+1}
             g = 0
-            for i in range(len(episode)-1, -1, -1):
-                g = gamma*g + episode[i][0]
+            for i in range(len(episode) - 1, -1, -1):
+                g = gamma * g + episode[i][0]
                 # g += episode[i][0]
                 episode[i][0] = g
 
@@ -70,7 +71,7 @@ class Agent:
                 g = episode[i][0]
                 # s /= 1000.
                 delta_value = self.value_state.derivation(s)
-                self.value_state.weight += learning_rate * (g - self.value_state(s))*delta_value
+                self.value_state.weight += learning_rate * (g - self.value_state(s)) * delta_value
         return mu
 
 
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     env = RandomWalk1000()
     agent = Agent(env, 0, 1000, 100)
     mu = agent.MC_app(100000, 2e-5)
-    mu = mu/np.sum(mu)
+    mu = mu / np.sum(mu)
     x = np.arange(1, 999, 1.)
     y = np.arange(1, 999, 1.)
     # for i in range(1, x.size, 2):
@@ -90,5 +91,5 @@ if __name__ == '__main__':
     plt.figure(0)
     plt.plot(x, y)
     plt.figure(1)
-    plt.bar(range(len(mu)), mu, color='gray',width=1)
+    plt.bar(range(len(mu)), mu, color='gray', width=1)
     plt.show()

@@ -1,13 +1,14 @@
-import gym
 import collections
-import numpy as np
+
+import gym
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import cm
 
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
 
 
 class Agent:
@@ -41,7 +42,7 @@ class Agent:
             episode = self.play_1_episode()
             g = 0.0
             w = 1
-            for i in range(len(episode)-1, -1, -1):
+            for i in range(len(episode) - 1, -1, -1):
                 state, action, reward = episode[i]
                 g = gamma * g + reward
                 is_first = True
@@ -57,19 +58,20 @@ class Agent:
                     old_value = self.value_state_action[(state, action)]
                     if alpha == 0:
                         average_times = self.value_state_action_visit_times[(state, action)]
-                        self.value_state_action[(state, action)] = old_value + 1./(average_times+1)*(g - old_value )
+                        self.value_state_action[(state, action)] = old_value + 1. / (average_times + 1) * (
+                                    g - old_value)
                         self.value_state_action_visit_times[(state, action)] += 1
                     else:
                         self.value_state_action[(state, action)] = old_value + alpha * (
-                                    g - old_value)
+                                g - old_value)
                 elif method == 'off-policy':
                     # incremental implement introduced in the book 'reinforcement learning: an introduction' 2ed
                     # section 5.6 C(s,a)
                     self.value_state_action_visit_times[(state, action)] += w
                     c_s_a = self.value_state_action_visit_times[(state, action)]
                     old_value = self.value_state_action[(state, action)]
-                    self.value_state_action[(state, action)] = old_value + w/c_s_a*(g - old_value)
-                    w *= 1./self.behavior_policies[state][action]
+                    self.value_state_action[(state, action)] = old_value + w / c_s_a * (g - old_value)
+                    w *= 1. / self.behavior_policies[state][action]
 
                 # update policy epsilon greedy
                 if not only_evaluation:
@@ -82,10 +84,10 @@ class Agent:
                             if action == action_iter:
                                 self.target_policies[state][action_iter] = \
                                     1 - self.epsilon + self.epsilon / self.env.action_space.n
-                                self.behavior_policies[state][action_iter] =\
+                                self.behavior_policies[state][action_iter] = \
                                     1 - self.epsilon + self.epsilon / self.env.action_space.n
                             else:
-                                self.behavior_policies[state][action_iter] =\
+                                self.behavior_policies[state][action_iter] = \
                                     self.epsilon / self.env.action_space.n
                                 self.target_policies[state][action_iter] = \
                                     self.epsilon / self.env.action_space.n
@@ -183,7 +185,7 @@ if __name__ == '__main__':
     X = np.arange(0, 10, 1)
     X, Y = np.meshgrid(X, Y)
 
-    fig = plt.figure(1, figsize=(12,9))
+    fig = plt.figure(1, figsize=(12, 9))
     ax = fig.gca(projection='3d')
     ax.plot_surface(X, Y, state_action_0_1_with_ace, cmap=cm.hsv)
     for angle in range(120, 270, 2):
@@ -193,7 +195,7 @@ if __name__ == '__main__':
         plt.savefig(filename)
         print("Save " + filename + " finish")
 
-    fig = plt.figure(2, figsize=(12,9))
+    fig = plt.figure(2, figsize=(12, 9))
     ax = fig.gca(projection='3d')
     ax.plot_surface(X, Y, state_action_0_1_without_ace, cmap=cm.hsv)
     for angle in range(120, 270, 2):
@@ -203,7 +205,7 @@ if __name__ == '__main__':
         plt.savefig(filename)
         print("Save " + filename + " finish")
 
-    fig = plt.figure(3, figsize=(12,9))
+    fig = plt.figure(3, figsize=(12, 9))
     ax = fig.gca(projection='3d')
     ax.scatter(X, Y, state_action_with_ace, cmap=cm.hsv)
     for angle in range(120, 270, 2):
@@ -213,7 +215,7 @@ if __name__ == '__main__':
         plt.savefig(filename)
         print("Save " + filename + " finish")
 
-    fig = plt.figure(4,figsize=(12,9))
+    fig = plt.figure(4, figsize=(12, 9))
     ax = fig.gca(projection='3d')
     ax.scatter(X, Y, state_action_without_ace, cmap=cm.hsv)
     for angle in range(120, 270, 2):
@@ -222,4 +224,3 @@ if __name__ == '__main__':
         filename = "./mc_data/off-policy/action_without_ace/" + str(angle) + ".png"
         plt.savefig(filename)
         print("Save " + filename + " finish")
-

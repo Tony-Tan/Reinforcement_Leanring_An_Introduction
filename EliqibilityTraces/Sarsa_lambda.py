@@ -1,9 +1,6 @@
-import collections
-from Environment.mountain_car import MountainCar
-import numpy as np
 import matplotlib.pyplot as plt
-import random
-import copy
+import numpy as np
+from environment.mountain_car import MountainCar
 
 
 def constant_factory(n):

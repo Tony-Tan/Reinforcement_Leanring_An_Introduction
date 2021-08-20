@@ -1,8 +1,8 @@
 import collections
-import numpy as np
-from Environment.random_walk_19_states import RandomWalk
+
 import matplotlib.pyplot as plt
-import random
+import numpy as np
+from environment.random_walk_19_states import RandomWalk
 
 
 class LinearFunction:
@@ -40,11 +40,11 @@ class Agent:
             current_action = self.select_action(current_state)
             next_state, reward, is_done, _ = self.env.step(current_action)
             while True:
-                x = np.array([current_state/19., 1])
+                x = np.array([current_state / 19., 1])
                 if next_state is None:
                     x_next = np.array([0, 0])
                 else:
-                    x_next = np.array([next_state/19., 1])
+                    x_next = np.array([next_state / 19., 1])
 
                 v_value = self.value_of_state.weight.transpose().dot(x)
                 v_value_next = self.value_of_state.weight.transpose().dot(x_next)
@@ -84,6 +84,6 @@ if __name__ == '__main__':
     agent.estimating(2000, 0.8, 0.01, 0.9)
     value_of_state = []
     for i_state in range(1, env.state_space.n - 1):
-        value_of_state.append(agent.value_of_state(i_state/19.))
+        value_of_state.append(agent.value_of_state(i_state / 19.))
     plt.plot(value_of_state)
     plt.show()

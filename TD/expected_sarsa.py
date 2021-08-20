@@ -1,11 +1,14 @@
-from random_walk import RandomWalk
-import numpy as np
 import collections
+
 import matplotlib.pyplot as plt
+import numpy as np
+from random_walk import RandomWalk
+
 
 def constant_factory(n):
     probability_list = np.ones(n)
-    return lambda: probability_list/np.sum(probability_list)
+    return lambda: probability_list / np.sum(probability_list)
+
 
 class Agent:
     def __init__(self, env, epsilon=0.4, initial_value=0):
@@ -30,7 +33,7 @@ class Agent:
                     q_state_next = 0
                     for action_iter in range(self.env.action_space.n):
                         q_state_next += \
-                            self.value_state_action[(new_state, action_iter)] *\
+                            self.value_state_action[(new_state, action_iter)] * \
                             self.policies[new_state][action_iter]
                     q_state_current = self.value_state_action[(state, action)]
                     self.value_state_action[(state, action)] = \
@@ -41,14 +44,15 @@ class Agent:
                         q_state_current + alpha * (reward - q_state_current)
 
                 if not only_evaluation:
-                    #control epsilon-greedy
+                    # control epsilon-greedy
                     value_of_action_list = []
                     for action_iter in range(self.env.action_space.n):
                         value_of_action_list.append(self.value_state_action[(state, action_iter)])
-                    optimal_action = np.random.choice(np.flatnonzero(value_of_action_list == value_of_action_list.max()))
+                    optimal_action = np.random.choice(
+                        np.flatnonzero(value_of_action_list == value_of_action_list.max()))
                     for action_iter in range(self.env.action_space.n):
                         if action_iter == optimal_action:
-                            self.policies[state][action_iter] = 1 - epsilon + epsilon/self.env.action_space.n
+                            self.policies[state][action_iter] = 1 - epsilon + epsilon / self.env.action_space.n
                         else:
                             self.policies[state][action_iter] = epsilon / self.env.action_space.n
                 if is_done:
@@ -61,7 +65,7 @@ if __name__ == '__main__':
     agent = Agent(env, initial_value=0.5)
     agent.sarsa_evaluation_control(10000, alpha=0.05, only_evaluation=True)
     value_list = []
-    ground_truth = [1/6, 2/6, 3/6, 4/6, 5/6]
+    ground_truth = [1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6]
     for state_i in range(env.state_space.n):
         value = 0
         for action_i in range(env.action_space.n):

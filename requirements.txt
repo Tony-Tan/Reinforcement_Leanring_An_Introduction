@@ -2,7 +2,4 @@ numpy
 matplotlib
 seaborn
 pandas
-gym
-torch
-torchvision
-tensorboard-pytorch
+rich

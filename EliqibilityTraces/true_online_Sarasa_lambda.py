@@ -1,9 +1,6 @@
-import collections
-from Environment.mountain_car import MountainCar
-import numpy as np
 import matplotlib.pyplot as plt
-import random
-import copy
+import numpy as np
+from environment.mountain_car import MountainCar
 
 
 def constant_factory(n):
@@ -38,7 +35,7 @@ class Agent:
 
     def state_feature_extract(self, state, action):
         position, velocity = state
-        feature = np.zeros(self.size_of_weights*4)
+        feature = np.zeros(self.size_of_weights * 4)
         x = position - self.env.position_bound[0]
         y = velocity - self.env.velocity_bound[0]
         for i in range(self.tiling_num):
@@ -97,16 +94,16 @@ class Agent:
                 next_action = self.select_action(next_state)
                 next_state_action_feature = self.state_feature_extract(next_state, next_action)
                 if is_done:
-                    next_state_action_feature = np.zeros(self.size_of_weights*4)
+                    next_state_action_feature = np.zeros(self.size_of_weights * 4)
 
                 q = self.value_of_state_action.weight.dot(np.array(state_action_feature))
                 q_next = self.value_of_state_action.weight.dot(np.array(next_state_action_feature))
                 delta = reward + gamma * q_next - q
                 eligibility_trace = \
-                    gamma * lambda_coe * eligibility_trace +\
+                    gamma * lambda_coe * eligibility_trace + \
                     (1. - alpha * gamma * eligibility_trace.dot(state_action_feature)) * state_action_feature
                 self.value_of_state_action.weight += \
-                    alpha*(delta + q - q_old)*eligibility_trace - \
+                    alpha * (delta + q - q_old) * eligibility_trace - \
                     alpha * (q - q_old) * state_action_feature
                 q_old = q_next
                 state_action_feature = next_state_action_feature

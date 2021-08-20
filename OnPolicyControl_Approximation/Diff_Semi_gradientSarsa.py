@@ -1,8 +1,8 @@
 import collections
-from Environment.access_control_queuing_task import QueuingTask
-import numpy as np
+
 import matplotlib.pyplot as plt
-import math
+import numpy as np
+from environment.access_control_queuing_task import QueuingTask
 
 
 def constant_factory(n):

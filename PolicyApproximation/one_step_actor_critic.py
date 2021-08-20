@@ -1,6 +1,6 @@
-from Environment.corridor_gridworld import ShortCorridor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from environment.corridor_gridworld import ShortCorridor
 
 
 class LogisticalFunc:
