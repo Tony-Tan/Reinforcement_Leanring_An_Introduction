@@ -1,3 +1,9 @@
+## Acknowledgement
+This project has been supported by [jetbrains](https://www.jetbrains.com/) 
+
+
+[![](./jetbrains-variant-2.png)](https://www.jetbrains.com/) 
+
 ## Hello everyone, I'm Anthony Tan, an independent AI researcher. 
 
 You can find my blog and research notes on:
